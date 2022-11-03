@@ -9,6 +9,7 @@ const { Keyboard } = require("telegram-keyboard");
 const url = "https://api-testnet.bybit.com/v2/public";
 
 var timeFromServer = 0;
+let timeNow = 0;
 
 bot.start((ctx) => {
   ctx.reply("Вітаємо в нашому боті!");
@@ -35,15 +36,14 @@ function getTimeFromServer() {
   })
     .then((res) => res.json())
     .then((data) => {
-      let recv_window = 5000,
-        timeNow = Date.now();
+      let recv_window = 5000;
+      timeNow = Date.now();
       timeFromServer = data.time_now;
       if (timeFromServer - recv_window <= timeNow < timeFromServer + 1000) {
         timestamp = timeNow;
+      } else {
+        console.log("Error timestamp");
       }
-      // else {
-      //   console.log("Error timestamp");
-      // }
     })
     .catch((er) => {
       console.log("Error: ${er}");
@@ -67,17 +67,18 @@ function getSignature(parameters, secret) {
 }
 
 function getSign() {
-  getTimeFromServer();
+  let timestamps = getTimeFromServer();
   const queryParams = {
     api_key: API_KEY,
     coin: "BTC",
-    timestamp: Date.now(),
+    timestamp: String(timestamps),
   };
   const queryString = JSON.stringify(queryParams);
   const sign = "&sign=" + getSignature(queryParams, bybitSecret);
-  const fullQuery = queryString + sign;
+  return sign;
+  // const fullQuery = queryString + sign;
 
-  console.log(`FullQuery example`, fullQuery);
+  // console.log(`FullQuery example`, fullQuery);
 }
 bot.hears("sign", (ctx) => {
   getSign();
@@ -87,16 +88,30 @@ bot.hears("timestamp", async (ctx) => {
   await getTimeFromServer();
   console.log(timeFromServer);
   console.log(timestamp);
-  await ctx.reply(timestamp);
+  ctx.reply(String(timestamp));
 });
 
-bot.hears("balance", (ctx) => {
-  getSign();
-
-  fetch("https://api-testnet.bybit.com/v2/private/wallet/balance", {
-    method: "post",
-    headers: { "Content-Type": "application/json" },
-  });
+bot.hears("balance", async (ctx) => {
+  let sign = getSign();
+  await getTimeFromServer();
+  fetch(
+    "https://api-testnet.bybit.com/v2/private/wallet/balance?api_key=" +
+      API_KEY +
+      "&coin=BTC&timestamp=" +
+      timeNow +
+      "&sign=" +
+      sign +
+      "",
+    {
+      method: "get",
+      headers: { "Content-Type": "application/json" },
+    }
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(timestamp);
+      console.log(data);
+    });
 });
 
 bot.hears(/[A-Z]+/i, (ctx) => {
