@@ -1,8 +1,8 @@
 const Telegraf = require("telegraf").Telegraf,
   os = require("node:os"),
   BOT_TOKEN = "5687253547:AAHqiWGBpGg_dgW_kLgamFBEJkio-eqceI8";
-API_KEY = "ztbiMok7YVgN39qO61";
-bybitSecret = "zEJEqjrCIuduJ3D6JUAZMh7RJAwitAmJzb1o";
+API_KEY = "SEdm8VmLyERyvdTunO";
+bybitSecret = "Tcy325WsyTIriwORN3GRRIluceBYPY5n4Jys";
 const bot = new Telegraf(BOT_TOKEN);
 const { time } = require("node:console");
 const { Keyboard } = require("telegram-keyboard");
@@ -10,7 +10,7 @@ const url = "https://api-testnet.bybit.com/v2/public";
 
 var timeFromServer = 0;
 let timeNow = 0;
-
+let sign = "";
 bot.start((ctx) => {
   ctx.reply("Вітаємо в нашому боті!");
   const keyboard = Keyboard.make([
@@ -66,22 +66,21 @@ function getSignature(parameters, secret) {
     .digest("hex");
 }
 
-function getSign() {
-  let timestamps = getTimeFromServer();
+async function getSign() {
+  await getTimeFromServer();
   const queryParams = {
     api_key: API_KEY,
     coin: "BTC",
-    timestamp: String(timestamps),
+    timestamp: timeFromServer,
   };
   const queryString = JSON.stringify(queryParams);
-  const sign = "&sign=" + getSignature(queryParams, bybitSecret);
-  return sign;
-  // const fullQuery = queryString + sign;
+  sign = getSignature(queryParams, bybitSecret);
+  const fullQuery = queryString + sign;
 
-  // console.log(`FullQuery example`, fullQuery);
+  console.log(`FullQuery example`, fullQuery);
 }
 bot.hears("sign", (ctx) => {
-  getSign();
+  console.log(getSign());
 });
 
 bot.hears("timestamp", async (ctx) => {
@@ -92,16 +91,10 @@ bot.hears("timestamp", async (ctx) => {
 });
 
 bot.hears("balance", async (ctx) => {
-  let sign = getSign();
+  await getSign();
   await getTimeFromServer();
   fetch(
-    "https://api-testnet.bybit.com/v2/private/wallet/balance?api_key=" +
-      API_KEY +
-      "&coin=BTC&timestamp=" +
-      timeNow +
-      "&sign=" +
-      sign +
-      "",
+    "https://api-testnet.bybit.com/v2/private/wallet/balance?api_key=" + API_KEY + "&coin=BTC&timestamp=" + timeFromServer + "&sign" + sign + "",
     {
       method: "get",
       headers: { "Content-Type": "application/json" },
@@ -110,7 +103,10 @@ bot.hears("balance", async (ctx) => {
     .then((res) => res.json())
     .then((data) => {
       console.log(timestamp);
+      console.log(timeFromServer);
+      console.log(sign);
       console.log(data);
+      ctx.reply(sign);
     });
 });
 
