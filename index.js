@@ -1,6 +1,6 @@
 const Telegraf = require("telegraf").Telegraf,
   os = require("node:os"),
-  BOT_TOKEN = "5687253547:AAHqiWGBpGg_dgW_kLgamFBEJkio-eqceI8";
+  BOT_TOKEN = "5687253547:AAHqiWGBpGg_dgW_kLgamFBEJkio-eqceI8"
 API_KEY = "SEdm8VmLyERyvdTunO";
 bybitSecret = "Tcy325WsyTIriwORN3GRRIluceBYPY5n4Jys";
 const bot = new Telegraf(BOT_TOKEN);
@@ -30,7 +30,7 @@ bot.start((ctx) => {
 });
 
 function getTimeFromServer() {
-  return fetch("https://api-testnet.bybit.com/v2/public/time", {
+  return fetch("https://api.bybit.com/v2/public/time", {
     method: "get",
     headers: { "Content-Type": "application/json" },
   })
@@ -40,7 +40,7 @@ function getTimeFromServer() {
       timeNow = Date.now();
       timeFromServer = data.time_now;
       if (timeFromServer - recv_window <= timeNow < timeFromServer + 1000) {
-        timestamp = timeNow;
+        timeFromServer = timeNow; 
       } else {
         console.log("Error timestamp");
       }
@@ -59,7 +59,6 @@ function getSignature(parameters, secret) {
       orderedParams += key + "=" + parameters[key] + "&";
     });
   orderedParams = orderedParams.substring(0, orderedParams.length - 1);
-
   return crypto
     .createHmac("sha256", secret)
     .update(orderedParams)
@@ -75,9 +74,6 @@ async function getSign() {
   };
   const queryString = JSON.stringify(queryParams);
   sign = getSignature(queryParams, bybitSecret);
-  const fullQuery = queryString + sign;
-
-  console.log(`FullQuery example`, fullQuery);
 }
 bot.hears("sign", (ctx) => {
   console.log(getSign());
@@ -90,22 +86,16 @@ bot.hears("timestamp", async (ctx) => {
   ctx.reply(String(timestamp));
 });
 
-bot.hears("balance", async (ctx) => {
+bot.hears("balance", async (ctx) => { 
   await getSign();
-  await getTimeFromServer();
+  console.log( "https://api-testnet.bybit.com/v2/private/wallet/balance?api_key=" + API_KEY + "&coin=BTC&timestamp=" + timeFromServer + "&sign=" + sign + "");
   fetch(
-    "https://api-testnet.bybit.com/v2/private/wallet/balance?api_key=" + API_KEY + "&coin=BTC&timestamp=" + timeFromServer + "&sign" + sign + "",
-    {
-      method: "get",
-      headers: { "Content-Type": "application/json" },
-    }
+    "https://api.bybit.com/v2/private/wallet/balance?api_key=" + API_KEY + "&coin=BTC&timestamp=" + timeFromServer + "&sign=" + sign
   )
     .then((res) => res.json())
     .then((data) => {
-      console.log(timestamp);
-      console.log(timeFromServer);
-      console.log(sign);
       console.log(data);
+      console.log(timeFromServer);
       ctx.reply(sign);
     });
 });
