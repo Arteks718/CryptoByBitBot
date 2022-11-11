@@ -102,15 +102,16 @@ function getTickers(symbol)
   })
 }
 
+bot.hears("balance", (ctx) =>{
+  clientInverse.getWalletBalance({coin: "BTC"})
+  .then(result => {
+    console.log("getWalletBalance result: ", result);
+  })
+  .catch(err => {
+    console.error("getWalletBalance error: ", err);
+  });
+})
 
-
-// clientInverse.getWalletBalance({coin: "BTC"})
-//   .then(result => {
-//     console.log("getWalletBalance result: ", result);
-//   })
-//   .catch(err => {
-//     console.error("getWalletBalance error: ", err);
-//   });
 
   // requestLibraryOptions
 
