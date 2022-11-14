@@ -1,13 +1,13 @@
 const Telegraf = require("telegraf").Telegraf,
   os = require("node:os"),
   BOT_TOKEN = "5687253547:AAHqiWGBpGg_dgW_kLgamFBEJkio-eqceI8",
+   //"2032874895:AAFdhZ_Qz5eaWFU2JQ6u4mkr9DaLFp0ig9A", // 
   bot = new Telegraf(BOT_TOKEN),
-  { Keyboard } = require("telegram-keyboard");
-
-
+  { Keyboard, Key } = require("telegram-keyboard");
 
 // let API_KEY = "SEdm8VmLyERyvdTunO";
 // let API_SECRET = "Tcy325WsyTIriwORN3GRRIluceBYPY5n4Jys";
+//SEdm8VmLyERyvdTunO:Tcy325WsyTIriwORN3GRRIluceBYPY5n4Jys
 
 const {
   InverseClient,
@@ -27,7 +27,7 @@ let API_SECRET = "";
 const useTestnet = false;
 const recvWindow = 5000;
 const keyboardApiYes = Keyboard.make(
-  ["Symbol", "Order book", "Query Kline", "Latest Big Deal", "Get Active Order", "Cancel Active Order", "Place Active Order", "Cancel All Active Orders", "Get Wallet Balance"], {
+  ['Symbol', "Order book", "Query Kline", "Latest Big Deal", "Get Active Order", "Cancel Active Order", "Place Active Order", "Cancel All Active Orders", "Get Wallet Balance"], {
     pattern: [4, 2, 2]
   });
 const keyboardApiNo = Keyboard.make(
@@ -35,9 +35,9 @@ const keyboardApiNo = Keyboard.make(
 
 
 bot.start(async (ctx) => {
-  ctx.reply("Test", Keyboard.remove())
-  await ctx.reply("Привіт, вітаю тебе у боті CryptoBybitBot!");
-  await ctx.reply("Для працездібності більшості функцій тобі потрібно ввести свій API Key та API Secret Key ");
+   //ctx.reply("Test", Keyboard.remove())
+   await ctx.reply("Привіт, вітаю тебе у боті CryptoBybitBot!");
+   await ctx.reply("Для працездібності більшості функцій тобі потрібно ввести свій API Key та API Secret Key ");
     ctx.replyWithHTML("Чи бажаєте ви ввести ключі?", {
       reply_markup: {
         inline_keyboard: [
@@ -179,7 +179,6 @@ bot.hears("balance", (ctx) =>{
 //     console.error("getBalances error: ", err);
 //   });
 
-
 // Get apikey and api secret key
 bot.action("yesAPI", async (ctx) => {
   bot.on
@@ -187,22 +186,20 @@ bot.action("yesAPI", async (ctx) => {
   if(API_KEY == "" && API_SECRET == "")
   {
     ctx.reply("Введіть APIKey:APISecret");
-
-
-
   }else{
     ctx.reply("Ваші ключі вже було введено\n", + API_KEY + "\n" + API_SECRET);
   }
 })
 
-bot.hears(/^Ключ [A-Za-z0-9а-яёі]/, async (ctx) => {
+
+bot.hears(/^[A-Za-z0-9а-яёі]{18}:[A-Za-z0-9а-яёі]{36}/, async (ctx) => {
   message = ctx.message.text;
   var arrayOfStrings = message.split(":");
   API_KEY = arrayOfStrings[0];
   API_SECRET = arrayOfStrings[1];
   if(API_KEY.length == 18)
   {
-    await ctx.reply("Ваш API Key: " + API_KEY);
+  await ctx.reply("Ваш API Key: " + API_KEY);
     if(API_SECRET.length == 36)
     {
       await ctx.reply("Ваш API Secret: " + API_SECRET);
@@ -214,7 +211,16 @@ bot.hears(/^Ключ [A-Za-z0-9а-яёі]/, async (ctx) => {
     ctx.reply("Тепер ви можете користуватись функціями бота", keyboardApiYes.reply());
   }
 })
-
+bot.hears("Symbol", (ctx) => {
+  clientInverse.getTickers({symbol: "symbol"})
+  .then(result => {
+    console.log("getTickers result: ", result);
+    ctx.reply("getTickers result: ", result.ret_msg);
+  })
+  .catch(err =>{
+    ctx.reply("getTickers error: ", err);
+  })
+})
 // send messege if user doesn't want enter api key and secret key
 bot.action("noAPI", (ctx) => {
   ctx.deleteMessage(ctx.inlineMessageId);
