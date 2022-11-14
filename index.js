@@ -63,7 +63,7 @@ bot.command('info', ctx => {
   })
 })
 
-function getKeyboard(choose)
+function getTickets(choose)
 {
 
 }
@@ -187,28 +187,31 @@ bot.action("yesAPI", async (ctx) => {
   if(API_KEY == "" && API_SECRET == "")
   {
     ctx.reply("Введіть APIKey:APISecret");
-    bot.hears(/^[A-Za-z0-9а-яёі]/, async (ctx) => {
-      message = ctx.message.text;
-      var arrayOfStrings = message.split(":");
-      API_KEY = arrayOfStrings[0];
-      API_SECRET = arrayOfStrings[1];
-      if(API_KEY.length == 18)
-      {
-        await ctx.reply("Ваш API Key: " + API_KEY);
-        if(API_SECRET.length == 36)
-        {
-          await ctx.reply("Ваш API Secret: " + API_SECRET);
-          chooseApiKey = true;
-        }else{ctx.reply("Неправильний формат API Secret");}
-      }else{ctx.reply("Неправильний формат API Key");}
-      if(chooseApiKey == true)
-      {
-        ctx.reply("Тепер ви можете користуватись функціями бота", keyboardApiYes.reply());
-      }
-    })
+
+
 
   }else{
     ctx.reply("Ваші ключі вже було введено\n", + API_KEY + "\n" + API_SECRET);
+  }
+})
+
+bot.hears(/^Ключ [A-Za-z0-9а-яёі]/, async (ctx) => {
+  message = ctx.message.text;
+  var arrayOfStrings = message.split(":");
+  API_KEY = arrayOfStrings[0];
+  API_SECRET = arrayOfStrings[1];
+  if(API_KEY.length == 18)
+  {
+    await ctx.reply("Ваш API Key: " + API_KEY);
+    if(API_SECRET.length == 36)
+    {
+      await ctx.reply("Ваш API Secret: " + API_SECRET);
+      chooseApiKey = true;
+    }else{ctx.reply("Неправильний формат API Secret");}
+  }else{ctx.reply("Неправильний формат API Key");}
+  if(chooseApiKey == true)
+  {
+    ctx.reply("Тепер ви можете користуватись функціями бота", keyboardApiYes.reply());
   }
 })
 
