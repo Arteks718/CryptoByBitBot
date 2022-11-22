@@ -115,16 +115,7 @@ bot.hears(/[A-Z]+/i, (ctx) => {
           let tickDirection = element.last_tick_direction;
           console.log(element.symbol);
           console.log(tickDirection);
-          // switch (tickDirection) {
-          //   case "PlusTick":
-          //     tickDirection = "Ціна збільшується";
-          //   case "MinusTick":
-          //     tickDirection = "Ціна зменьшується";
-          //   case "ZeroPlusTick":
-          //     tickDirection = "Ціна згоди більше ніж попередньої згоди";
-          //   case "ZeroMinusTick":
-          //     tickDirection = "Ціна згоди менше ніж попередньої згоди";
-          // }
+          
           if (element.last_tick_direction == "PlusTick") {
             tickDirection = "Ціна збільшується";
           } else if (element.last_tick_direction == "MinusTick") {
