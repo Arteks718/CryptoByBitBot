@@ -72,6 +72,16 @@ function getRunTime(t) {
   return hours+":"+minutes+":"+seconds;
 }
 
+async function resultKline(limit, ctx, result)
+{
+  let res;
+  for(let i = 0; i < limit; i++)
+  {
+    res = result.result[i];
+    await ctx.replyWithHTML("<b>Початкова вартість:</b> " + res['open'] + "$\n<b>Найвища ціна:</b> " + res['high'] + "$\n<b>Найнижча ціна:</b> " + res['low'] + "$\n<b>Кінцева вартість:</b> " + res['close'] + "$\n<b>Об'єм:</b> " + res['volume']);
+  }
+}
+
 const clientInverse = new InverseClient({
   key: API_KEY,
   secret: API_SECRET,
@@ -102,10 +112,19 @@ bot.action("yesAPI", async (ctx) => {
   {
     ctx.reply("Введіть APIKey:APISecret");
   }else{
-    ctx.reply("Ваші ключі вже було введено\n", + API_KEY + "\n" + API_SECRET);
+    ctx.reply("Ваші ключі вже було введено\nAPI Key: " + API_KEY + "\nAPI Secret: " + API_SECRET, keyboardApiYes.reply());
   }
 })
 
+bot.action("noAPI", (ctx) => {
+  ctx.deleteMessage(ctx.inlineMessageId);
+  chooseApiKey = false;
+  ctx.reply("Добре, якщо передумаєте, то зможете у будь-який час додати свої ключі");
+  if(chooseApiKey == false)
+  {
+    ctx.reply("Тепер ви можете користуватись функціями бота", keyboardApiNo.reply());
+  }
+})
 
 bot.hears(/^[A-Za-z0-9а-яёі]{18}:[A-Za-z0-9а-яёі]{36}/, async (ctx) => {
   message = ctx.message.text;
@@ -127,15 +146,30 @@ bot.hears(/^[A-Za-z0-9а-яёі]{18}:[A-Za-z0-9а-яёі]{36}/, async (ctx) => {
   }
 })
 
-bot.hears("Get Wallet Balance", (ctx) =>{
-  clientInverse.getWalletBalance({coin: "USDT"})
-  .then(result => {
-    console.log("getWalletBalance result: ", result);
-  })
-  .catch(err => {
-    console.error("getWalletBalance error: ", err);
-  });
-})
+// bot.hears("Get Wallet Balance", (ctx) =>{
+//   let check = false, t, f;
+//   while(check == false)
+//   {
+//     clientInverse.getWalletBalance({coin: "USDT"})
+//     .then(result => {
+//       if(result.ret_code != 0)
+//       {
+//         console.log("retcode != 0");
+//         check = false;
+//         f++;
+//       }else{
+//         console.log("retcode = 0");
+//         console.log("getWalletBalance result: ", result);
+//         check = true;
+//         t++;
+//       }
+//     })
+//     .catch(err => {
+//       console.error("getWalletBalance error: ", err);
+//     });
+//   }
+//   console.log(k, " asd ", t);
+// })
 
 bot.hears("Symbol", (ctx) => {
   ctx.reply("Зрозумів, тепер введи будь ласка пару символів, наприклад: APTUSDT / ethusdt / BtCuSdT");
@@ -226,27 +260,55 @@ bot.hears("Order book", (ctx) => {
 })
 
 bot.hears("Query Kline", (ctx) => {
-  ctx.reply("Зрозумів, тепер введи будь ласка, наприклад: BTCUSD:240:W:5");
-  bot.hears(/[A-Za-z]/, (ctx) => {
+  ctx.replyWithHTML("Зрозумів, тепер введіть будь ласка параметри за наступним виглядом\n<i>symbol:interval:from:limit</i>\nЗ яких:\n<b>symbol</b> - це символ пошуку(наприклад BTCUSD, ETHUSD)\n<b>interval</b> - це інтервал між запитами, допускаються лише такі параметри: 1 3 5 15 30 60 120 240 360 720 'D' 'M' 'W'\n<b>from</b> - це відколи буде починатися пошук запитів, параметри аналогічні з інтервалом\n<b>limit</b> - це кількість запитів для отримання (не може бути більше 25)\nНаприклад: BTCUSD:240:W:5");
+  bot.hears(/[A-Za-z0-9а-яёі]/, (ctx) => {
     message = ctx.message.text;
     var arrayOfStrings = message.split(":");
-    let symbol = arrayOfStrings[0], interval = arrayOfStrings[1], from = arrayOfStrings[2], limit = arrayOfStrings[3];
-    if(Number.isInteger(from) == true)
+    let symbol = arrayOfStrings[0].toUpperCase(), interval = arrayOfStrings[1], from = arrayOfStrings[2], limit = arrayOfStrings[3];
+    if((interval == 1 || interval == 5 || interval == 15 || interval == 30 || interval == 60 || interval == 120 || interval == 240 || interval == 360 || interval == 720 || interval == 'D' || interval == 'M' || interval == 'W') && limit <=25)
     {
-      
-    }
-    clientInverse.getKline({symbol:"BTCUSD", interval:"D", from: 1667018735})
+      fromTime = new Date();
+      if(Number.isInteger(from) != true)
+      {
+        switch(from)
+        {
+          case 'm': from = 60; break;
+          case 'H': from = 3600; break;
+          case 'D': from = 86400; break;
+          case 'W': from = 604800; break;
+          case 'M': from = 2628000; break;
+        }
+        fromTime = Math.round(fromTime / 1000 - from);
+      }else {
+        fromTime = Math.round(fromTime / 1000);
+      }
+
+      clientInverse.getKline({symbol:symbol, interval:interval, from: fromTime, limit: limit})
       .then(result => {
+            // console.log("getKline result: ", result);
         if(result.ret_code == 0)
         {
-
+          let resLenght = result.result.length;
+          if(result.result.length != limit)
+          {
+            console.log("get res Kline resutl", resLenght);
+            console.log("get Kline resutl", result.result.lenght);
+            ctx.reply("За зазначений Вами час було отримано лише " + resLenght + " запис\nДля отримання більше записів ви можете або збільшити від коли шукати записи, або зменшити інтервал");
+            resultKline(resLenght, ctx, result);
+          }else{
+            ctx.reply("Запит вдалий!");
+            resultKline(limit, ctx, result);
+          }
         }else{
-          ctx.reply("Введено неіснуючий символ, будь ласка викликайте функцію заново");
+          ctx.replyWithHTML("Неправильно введено параметри. \nПродивіться будь ласка правильність їх написання та запустіть функцію ще раз.")
         }
       })
-    .catch(err => {
-      console.error("getKline error: ", err);
-    });
+      .catch(err => {
+        console.error("getKline error: ", err);
+      });
+    }else{
+      ctx.reply("Неправильно введено інтервал або ліміт");
+    }
   })
 })
 
@@ -285,15 +347,7 @@ bot.hears("Latest Big Deal", (ctx) => {
   })
 })
 
-bot.action("noAPI", (ctx) => {
-  ctx.deleteMessage(ctx.inlineMessageId);
-  chooseApiKey = false;
-  ctx.reply("Добре, якщо передумаєте, то зможете у будь-який час додати свої ключі");
-  if(chooseApiKey == false)
-  {
-    ctx.reply("Тепер ви можете користуватись функціями бота", keyboardApiNo.reply());
-  }
-})
+
 
 
 // clientInverse.getServerTime()
