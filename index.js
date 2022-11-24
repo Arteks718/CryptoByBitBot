@@ -64,28 +64,32 @@ bot.command('info', ctx => {
 })
 
 function getRunTime(t) {
-  let hours, minutes, seconds;
+  console.log(t);
   date = new Date(t*1000);
+  console.log(date);
+  year = date.getFullYear();
+  day = date.getDay() + 1;
+  month = date.getMonth();
   hours = date.getHours();
   minutes = date.getMinutes();
   seconds = date.getSeconds();
-  return hours+":"+minutes+":"+seconds;
+  return year + " gh " + day + "." + month + " " + hours+":"+minutes+":"+seconds;
 }
 
 async function resultKline(limit, ctx, result)
 {
-  let res;
   for(let i = 0; i < limit; i++)
   {
     res = result.result[i];
-    await ctx.replyWithHTML("<b>Початкова вартість:</b> " + res['open'] + "$\n<b>Найвища ціна:</b> " + res['high'] + "$\n<b>Найнижча ціна:</b> " + res['low'] + "$\n<b>Кінцева вартість:</b> " + res['close'] + "$\n<b>Об'єм:</b> " + res['volume']);
+    await ctx.replyWithHTML("<b>Початкова вартість:</b> " + res['open'] + "$\n<b>Найвища ціна:</b> " + res['high'] + "$\n<b>Найнижча ціна:</b> " + res['low'] + "$\n<b>Кінцева вартість:</b> " + res['close'] + "$\n<b>Об'єм:</b> " + res['volume'] + "$\n<b>Дата:</b> " + getRunTime(res['open_time']));
   }
 }
 
 const clientInverse = new InverseClient({
   key: API_KEY,
   secret: API_SECRET,
-  testnet: useTestnet
+  testnet: useTestnet,
+  recv_window: recvWindow
 });
 
 bot.hears("apikey", async (ctx) => {
@@ -146,30 +150,45 @@ bot.hears(/^[A-Za-z0-9а-яёі]{18}:[A-Za-z0-9а-яёі]{36}/, async (ctx) => {
   }
 })
 
-// bot.hears("Get Wallet Balance", (ctx) =>{
-//   let check = false, t, f;
-//   while(check == false)
-//   {
-//     clientInverse.getWalletBalance({coin: "USDT"})
-//     .then(result => {
-//       if(result.ret_code != 0)
-//       {
-//         console.log("retcode != 0");
-//         check = false;
-//         f++;
-//       }else{
-//         console.log("retcode = 0");
-//         console.log("getWalletBalance result: ", result);
-//         check = true;
-//         t++;
-//       }
-//     })
-//     .catch(err => {
-//       console.error("getWalletBalance error: ", err);
-//     });
-//   }
-//   console.log(k, " asd ", t);
-// })
+/**
+ *
+ * Wallet Data Endpoints
+ *
+ */
+
+bot.hears("Get Wallet Balance", (ctx) =>{
+  // let check = false, t, f;
+  // while(check == false)
+  // {
+
+  // }
+
+      clientInverse.getWalletBalance({coin: "USDT"})
+    .then(result => {
+              console.log("getWalletBalance result: ", result);
+
+      // if(result.ret_code != 0)
+      // {
+      //   console.log("retcode != 0");
+      //   check = false;
+      //   f++;
+      // }else{
+      //   console.log("retcode = 0");
+      //   console.log("getWalletBalance result: ", result);
+      //   check = true;
+      //   t++;
+      // }
+    })
+    .catch(err => {
+      console.error("getWalletBalance error: ", err);
+    });
+})
+
+/**
+ *
+ * Market Data Endpoints
+ *
+ */
 
 bot.hears("Symbol", (ctx) => {
   ctx.reply("Зрозумів, тепер введи будь ласка пару символів, наприклад: APTUSDT / ethusdt / BtCuSdT");
@@ -260,7 +279,7 @@ bot.hears("Order book", (ctx) => {
 })
 
 bot.hears("Query Kline", (ctx) => {
-  ctx.replyWithHTML("Зрозумів, тепер введіть будь ласка параметри за наступним виглядом\n<i>symbol:interval:from:limit</i>\nЗ яких:\n<b>symbol</b> - це символ пошуку(наприклад BTCUSD, ETHUSD)\n<b>interval</b> - це інтервал між запитами, допускаються лише такі параметри: 1 3 5 15 30 60 120 240 360 720 'D' 'M' 'W'\n<b>from</b> - це відколи буде починатися пошук запитів, параметри аналогічні з інтервалом\n<b>limit</b> - це кількість запитів для отримання (не може бути більше 25)\nНаприклад: BTCUSD:240:W:5");
+  ctx.replyWithHTML("Зрозумів, тепер введіть будь ласка параметри за наступним виглядом\n<i>symbol:interval:from:limit</i>\nЗ яких:\n<b>symbol</b> - це символ пошуку(наприклад BTCUSD, ETHUSD)\n<b>interval</b> - це інтервал між запитами, допускаються лише такі параметри: 1 3 5 15 30 60 120 240 360 720 'D' 'M' 'W' (цифри в мінутах)\n<b>from</b> - це відколи буде починатися пошук запитів, параметри аналогічні з інтервалом\n<b>limit</b> - це кількість запитів для отримання (не може бути більше 25)\nНаприклад: BTCUSD:240:W:5");
   bot.hears(/[A-Za-z0-9а-яёі]/, (ctx) => {
     message = ctx.message.text;
     var arrayOfStrings = message.split(":");
@@ -268,6 +287,7 @@ bot.hears("Query Kline", (ctx) => {
     if((interval == 1 || interval == 5 || interval == 15 || interval == 30 || interval == 60 || interval == 120 || interval == 240 || interval == 360 || interval == 720 || interval == 'D' || interval == 'M' || interval == 'W') && limit <=25)
     {
       fromTime = new Date();
+      console.log(fromTime);
       if(Number.isInteger(from) != true)
       {
         switch(from)
@@ -279,8 +299,10 @@ bot.hears("Query Kline", (ctx) => {
           case 'M': from = 2628000; break;
         }
         fromTime = Math.round(fromTime / 1000 - from);
+              console.log(fromTime);
       }else {
         fromTime = Math.round(fromTime / 1000);
+              console.log(fromTime);
       }
 
       clientInverse.getKline({symbol:symbol, interval:interval, from: fromTime, limit: limit})
@@ -291,8 +313,6 @@ bot.hears("Query Kline", (ctx) => {
           let resLenght = result.result.length;
           if(result.result.length != limit)
           {
-            console.log("get res Kline resutl", resLenght);
-            console.log("get Kline resutl", result.result.lenght);
             ctx.reply("За зазначений Вами час було отримано лише " + resLenght + " запис\nДля отримання більше записів ви можете або збільшити від коли шукати записи, або зменшити інтервал");
             resultKline(resLenght, ctx, result);
           }else{
@@ -311,6 +331,12 @@ bot.hears("Query Kline", (ctx) => {
     }
   })
 })
+
+/**
+ *
+ * Market Data : Advanced
+ *
+ */
 
 bot.hears("Latest Big Deal", (ctx) => {
   ctx.reply("Зрозумів, тепер введи будь ласка пару символів, наприклад: APTUSDT / ethusdt / BtCuSdT");
@@ -347,16 +373,30 @@ bot.hears("Latest Big Deal", (ctx) => {
   })
 })
 
+/**
+ * Active orders
+ */
 
+bot.hears("Get Active Order", (ctx) => {
+  clientInverse.queryActiveOrder({symbol:"BTCUSD"})
+  .then(result => {
+    console.log("Get Active Order result: ", result);
+  })
+  .catch(err => {
+    console.error("Get Active Order error: ", err);
+  });
+})
 
+bot.hears("Time", (ctx) => {
+clientInverse.getServerTime()
+  .then(result => {
+    console.log("getServerTime result: ", result);
+  })
+  .catch(err => {
+    console.error("getServerTime error: ", err);
+  });
+})
 
-// clientInverse.getServerTime()
-//   .then(result => {
-//     console.log("getServerTime result: ", result);
-//   })
-//   .catch(err => {
-//     console.error("getServerTime error: ", err);
-//   });
 // clientInverse.getApiKeyInfo()
 //   .then(result => {
 //     console.log("getApiKeyInfo result: ", result);
