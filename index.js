@@ -22,10 +22,11 @@ const {
   CopyTradingClient, } = require('bybit-api');
 
 let chooseApiKey;
-let API_KEY = "SEdm8VmLyERyvdTunO";
-let API_SECRET = "Tcy325WsyTIriwORN3GRRIluceBYPY5n4Jys";
+let API_KEY = "", API_SECRET = "";
+// let API_KEY = "SEdm8VmLyERyvdTunO";
+// let API_SECRET = "Tcy325WsyTIriwORN3GRRIluceBYPY5n4Jys";
 const useTestnet = false;
-const recvWindow = 10000;
+const recvWindow = 11000;
 const keyboardApiYes = Keyboard.make(
   ['Symbol', "Order book", "Query Kline", "Latest Big Deal", "Get Active Order", "Cancel Active Order", "Place Active Order", "Cancel All Active Orders", "Get Wallet Balance"], {
     pattern: [4, 2, 2]
@@ -34,6 +35,7 @@ const keyboardApiNo = Keyboard.make(
   ["Symbol", "Order book", "Query Kline", "Latest Big Deal"]);
 
 
+//TODO - Start
 bot.start(async (ctx) => {
    //ctx.reply("Test", Keyboard.remove())
    await ctx.reply("Привіт, вітаю тебе у боті CryptoBybitBot!");
@@ -92,6 +94,8 @@ const clientInverse = new InverseClient({
   recv_window: recvWindow
 });
 
+//TODO - Get ApiKey
+
 bot.hears("apikey", async (ctx) => {
   if(API_KEY != "" && API_SECRET != "")
   {
@@ -109,6 +113,8 @@ bot.hears("apikey", async (ctx) => {
 
 
 // Get apikey and api secret key
+//TODO YesApi
+
 bot.action("yesAPI", async (ctx) => {
   bot.on
   ctx.deleteMessage (ctx.inlineMessageId);
@@ -119,6 +125,8 @@ bot.action("yesAPI", async (ctx) => {
     ctx.reply("Ваші ключі вже було введено\nAPI Key: " + API_KEY + "\nAPI Secret: " + API_SECRET, keyboardApiYes.reply());
   }
 })
+
+//TODO NoApi
 
 bot.action("noAPI", (ctx) => {
   ctx.deleteMessage(ctx.inlineMessageId);
@@ -156,32 +164,39 @@ bot.hears(/^[A-Za-z0-9а-яёі]{18}:[A-Za-z0-9а-яёі]{36}/, async (ctx) => {
  *
  */
 
+//TODO Wallet Balance
+
 bot.hears("Get Wallet Balance", (ctx) =>{
-  // let check = false, t, f;
-  // while(check == false)
-  // {
-
-  // }
-
-      clientInverse.getWalletBalance({coin: "USDT"})
+  ctx.reply("Зрозумів, тепер введить будь ласка символ за яким буде виведенний баланс, наприклад: USDT / BTC / ETH");
+  bot.hears(/[A-Za-z]/, (ctx) => {
+  let message = ctx.message.text.toUpperCase();
+    clientInverse.getWalletBalance({coin: message})
     .then(result => {
-              console.log("getWalletBalance result: ", result);
-
-      // if(result.ret_code != 0)
-      // {
-      //   console.log("retcode != 0");
-      //   check = false;
-      //   f++;
-      // }else{
-      //   console.log("retcode = 0");
-      //   console.log("getWalletBalance result: ", result);
-      //   check = true;
-      //   t++;
-      // }
+      if(result.ret_code == 0)
+      {
+        let data = result.result[message];
+        ctx.replyWithHTML(
+          "<b>Баланс гаманця: </b>" +
+          data['wallet_balance'].toFixed(4) +
+          "$\n<b>Сума балансу та нереаалізованого PNL: </b>" +
+          data['equity'].toFixed(4) +
+          "$\n<b>Доступні кошти: </b>" +
+          data['available_balance'].toFixed(4) +
+          "$\n<b>Використовувана маржа: </b>" +
+          data['used_margin'].toFixed(4) +
+          "$\n<b>Реалізована PNL: </b>" +
+          data['realised_pnl'].toFixed(4) +
+          "$\n<b>Нереалізована PNL: </b>" +
+          data['unrealised_pnl'].toFixed(4) + "$"
+        );
+      }else{
+        ctx.reply("Введено неіснуючий символ, будь ласка викликайте функцію заново");
+      }
     })
     .catch(err => {
       console.error("getWalletBalance error: ", err);
     });
+  })
 })
 
 /**
@@ -189,6 +204,8 @@ bot.hears("Get Wallet Balance", (ctx) =>{
  * Market Data Endpoints
  *
  */
+
+//TODO- Symbol
 
 bot.hears("Symbol", (ctx) => {
   ctx.reply("Зрозумів, тепер введи будь ласка пару символів, наприклад: APTUSDT / ethusdt / BtCuSdT");
@@ -199,40 +216,23 @@ bot.hears("Symbol", (ctx) => {
       if(result.ret_code == 0)
       {
         let data = result.result[0], tickDirection;
-        if (data.last_tick_direction == "PlusTick") {
-            tickDirection = "Ціна збільшується";
-          } else if (data.last_tick_direction == "MinusTick") {
-            tickDirection = "Ціна зменьшується";
-          } else if (data.last_tick_direction == "ZeroPlusTick") {
-            tickDirection = "Ціна згоди більше ніж попередньої згоди";
-          } else if (data.last_tick_direction == "ZeroMinusTick") {
-            tickDirection = "Ціна згоди менше ніж попередньої згоди";
-          }
-          ctx.replyWithHTML(
-            "<b>Символ: </b>" +
-              data.symbol +
-              "\n<b>Ціна індексу: </b>" +
-              data.index_price +
-              "$" +
-              "\n<b>Напрямок ціни: </b>" +
-              tickDirection +
-              "\n<b>Найвища ціна за 24 год: </b>" +
-              data.high_price_24h +
-              "$" +
-              "\n<b>Найнижча ціна за 24 год: </b>" +
-              data.low_price_24h +
-              "$" +
-              "\n<b>Процентна зміна ціни відносно 1 год: </b>" +
-              data.price_24h_pcnt.toFixed(4) +
-              "%" +
-              "\n<b>Ціна 24 год тому: </b>" +
-              data.prev_price_24h +
-              "$" +
-              "\n<b>Оборот за 24 год: </b>" +
-              data.turnover_24h.toFixed(2) +
-              "\n<b>Об'єм за 24 год: </b>" +
-              data.volume_24h.toFixed(2)
-          );
+        switch(data.last_tick_direction){
+          case "PlusTick": tickDirection = "Ціна збільшується"; break;
+          case "MinusTick": tickDirection = "Ціна зменьшується"; break;
+          case "ZeroPlusTick": tickDirection = "Ціна згоди більше ніж попередньої згоди"; break;
+          case "ZeroMinusTick": tickDirection = "Ціна згоди менше ніж попередньої згоди"; break;
+        }
+        ctx.replyWithHTML(
+          "<b>Символ: </b>" + data.symbol
+            + "\n<b>Ціна індексу: </b>" + data.index_price
+            + "$\n<b>Напрямок ціни: </b>" + tickDirection
+            + "\n<b>Найвища ціна за 24 год: </b>" + data.high_price_24h
+            + "$\n<b>Найнижча ціна за 24 год: </b>" + data.low_price_24h
+            + "$\n<b>Процентна зміна ціни відносно 1 год: </b>" + data['price_24h_pcnt']
+            +"%\n<b>Ціна 24 год тому: </b>" + data.prev_price_24h
+            + "$\n<b>Оборот за 24 год: </b>" + data.turnover_24h
+            + "\n<b>Об'єм за 24 год: </b>" + data.volume_24h
+        );
       }else{
         ctx.reply("Введено неіснуючий символ, будь ласка викликайте функцію заново");
       }
@@ -242,6 +242,8 @@ bot.hears("Symbol", (ctx) => {
     })
   })
 })
+
+//TODO - Order book
 
 bot.hears("Order book", (ctx) => {
   ctx.reply("Зрозумів, тепер введи будь ласка пару символів, наприклад: APTUSDT / ethusdt / BtCuSdT");
@@ -277,6 +279,8 @@ bot.hears("Order book", (ctx) => {
     });
   })
 })
+
+//TODO - Query Kline
 
 bot.hears("Query Kline", (ctx) => {
   ctx.replyWithHTML("Зрозумів, тепер введіть будь ласка параметри за наступним виглядом\n<i>symbol:interval:from:limit</i>\nЗ яких:\n<b>symbol</b> - це символ пошуку(наприклад BTCUSD, ETHUSD)\n<b>interval</b> - це інтервал між запитами, допускаються лише такі параметри: 1 3 5 15 30 60 120 240 360 720 'D' 'M' 'W' (цифри в мінутах)\n<b>from</b> - це відколи буде починатися пошук запитів, параметри аналогічні з інтервалом\n<b>limit</b> - це кількість запитів для отримання (не може бути більше 25)\nНаприклад: BTCUSD:240:W:5");
