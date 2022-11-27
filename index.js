@@ -18,12 +18,17 @@ const {
   CopyTradingClient, } = require('bybit-api');
 
 let chooseApiKey, chooseButton;
-let API_KEY = "", API_SECRET = "", clientInverse;
-
-// let API_KEY = "SEdm8VmLyERyvdTunO",
-//     API_SECRET = "Tcy325WsyTIriwORN3GRRIluceBYPY5n4Jys";
+// let API_KEY = "", API_SECRET = "";
+let API_KEY = "SEdm8VmLyERyvdTunO",
+    API_SECRET = "Tcy325WsyTIriwORN3GRRIluceBYPY5n4Jys";
 //SEdm8VmLyERyvdTunO:Tcy325WsyTIriwORN3GRRIluceBYPY5n4Jys
 const useTestnet = false, recvWindow = 15000;
+let clientInverse = new InverseClient( {
+  key: API_KEY,
+  secret: API_SECRET,
+  testnet: useTestnet,
+  recv_window: recvWindow
+});
 
 const keyboardApiYes = Keyboard.make(
   ['Symbol', "Order book", "Query Kline", "Latest Big Deal", "Get Active Order", "Cancel Active Order", "Place Active Order", "Cancel All Active Orders", "Get Wallet Balance"], {
@@ -32,8 +37,7 @@ const keyboardApiYes = Keyboard.make(
 const keyboardApiNo = Keyboard.make(
   ["Symbol", "Order book", "Query Kline", "Latest Big Deal"]);
 
-
-//TODO - Start
+//FUNCTION - Start
 bot.start(async (ctx) => {
   chooseButton = "";
   await bot.telegram.sendMessage(ctx.chat.id, "Привіт, вітаю тебе у боті CryptoBybitBot!",
@@ -42,8 +46,6 @@ bot.start(async (ctx) => {
       remove_keyboard: true
     }
   })
-   //ctx.reply("Test", Keyboard.remove())
-  //  await ctx.reply("Привіт, вітаю тебе у боті CryptoBybitBot!");
   await ctx.reply("Для працездібності більшості функцій тобі потрібно ввести свій API Key та API Secret Key ");
   await ctx.replyWithHTML("Чи бажаєте ви ввести ключі?", {
       reply_markup: {
@@ -56,7 +58,7 @@ bot.start(async (ctx) => {
 })
 
 // Get apikey and api secret key
-//TODO - YesApi action
+//FUNCTION - YesApi action
 bot.action("yesAPI", async (ctx) => {
   bot.on
   ctx.deleteMessage (ctx.inlineMessageId);
@@ -72,7 +74,7 @@ bot.action("yesAPI", async (ctx) => {
   }
 })
 
-//TODO - NoApi action
+//FUNCTION - NoApi action
 bot.action("noAPI", (ctx) => {
   ctx.deleteMessage(ctx.inlineMessageId);
   chooseApiKey = false;
@@ -87,7 +89,7 @@ bot.action("noAPI", (ctx) => {
     ctx.reply("Ваші ключі вже було введено\nAPI Key: " + API_KEY + "\nAPI Secret: " + API_SECRET, keyboardApiYes.reply());
   }
 })
-//TODO - info command
+//FUNCTION - info command
 bot.command('info', ctx => {
   bot.telegram.sendMessage(ctx.chat.id, "Bot Info", {
     reply_markup: {
@@ -102,7 +104,7 @@ bot.command('info', ctx => {
     }
   })
 })
-
+//FUNCTION - getTime
 function getTime() {
 clientInverse.getServerTime()
   .then(result => {
@@ -122,11 +124,9 @@ clientInverse.getServerTime()
     console.error("getServerTime error: ", err);
   });
 }
-
+//FUNCTION - getRunTime
 function getRunTime(t) {
-  console.log(t);
   date = new Date(t*1000);
-  console.log(date);
   year = date.getFullYear();
   day = date.getDate();
   month = date.getMonth() + 1;
@@ -135,7 +135,7 @@ function getRunTime(t) {
   seconds = date.getSeconds();
   return  day + "." + month + " " + hours+":"+minutes+":"+seconds;
 }
-
+//FUNCTION - resultKline
 async function resultKline(limit, ctx, result)
 {
   for(let i = 0; i < limit; i++)
@@ -144,13 +144,21 @@ async function resultKline(limit, ctx, result)
     await ctx.replyWithHTML("<b>Початкова вартість:</b> " + res['open'] + "$\n<b>Найвища ціна:</b> " + res['high'] + "$\n<b>Найнижча ціна:</b> " + res['low'] + "$\n<b>Кінцева вартість:</b> " + res['close'] + "$\n<b>Об'єм:</b> " + res['volume'] + "$\n<b>Дата:</b> " + getRunTime(res['open_time']));
   }
 }
-
+//FUNCTION - sklonenie
+const sklonenie = (number, txt, cases = [2, 0, 1, 1, 1, 2]) => txt[(number % 100 > 4 && number % 100 < 20) ? 2 : cases[(number % 10 < 5) ? number % 10 : 5]];
+//HEAR - time
 bot.hears("time", ctx=> {
-  getTime();
+  let side = 'TEXT';
+  side = side.toLowerCase();
+    if(side == 'text')
+    {
+      side = side.replace('text', 'Text');
+    }
+console.log(side);
+String.prototype.replace
+  // getTime();
 })
-
-//TODO - Get ApiKey
-
+//HEAR - Get ApiKey
 bot.hears("apikey", async (ctx) => {
   if(API_KEY != "" && API_SECRET != "")
   {
@@ -165,9 +173,7 @@ bot.hears("apikey", async (ctx) => {
     ctx.reply("No");
   }
 })
-
-//TODO - Get ApiKeyInfo
-
+//HEAR - Get ApiKeyInfo
 bot.hears("apikeyinfo", async (ctx) => {
   clientInverse.getApiKeyInfo()
   .then(result => {
@@ -184,15 +190,16 @@ bot.hears("apikeyinfo", async (ctx) => {
  *
  */
 
-//TODO - Wallet Balance +
+//BUTTON - Wallet Balance ++
 bot.hears("Get Wallet Balance", (ctx) =>{
   if(chooseApiKey == true)
   {
-    ctx.reply("Зрозумів, тепер введить будь ласка символ за яким буде виведенний баланс, наприклад: USDT / BTC / ETH");
+    ctx.reply("Зрозумів, тепер введіть будь ласка символ за яким буде виведено баланс, наприклад: USDT / BTC / ETH");
     chooseButton = "Get Wallet Balance";
   }else{
     ctx.reply("Дану функцію неможна використовувати без API ключей");
   }
+  
 })
 
 /**
@@ -201,17 +208,17 @@ bot.hears("Get Wallet Balance", (ctx) =>{
  *
  */
 
-//TODO- Symbol +
+//BUTTON- Symbol ++
 bot.hears("Symbol", (ctx) => {
-  ctx.reply("Зрозумів, тепер введи будь ласка пару символів, наприклад: APTUSDT / ethusdt / BtCuSdT");
+  ctx.reply("Зрозумів, тепер введіть будь ласка пару символів, наприклад: APTUSDT / ethusdt / BtCuSdT");
   chooseButton = "Symbol";
 })
-//TODO - Order book +
+//BUTTON - Order book ++
 bot.hears("Order book", (ctx) => {
-  ctx.reply("Зрозумів, тепер введи будь ласка пару символів, наприклад: APTUSDT / ethusdt / BtCuSdT");
+  ctx.reply("Зрозумів, тепер введіть будь ласка пару символів, наприклад: APTUSDT / solbtc / BtCuSdC");
   chooseButton = "Order book";
 })
-//TODO - Query Kline +
+//BUTTON - Query Kline ++
 bot.hears("Query Kline", (ctx) => {
   ctx.replyWithHTML("Зрозумів, тепер введіть будь ласка параметри за наступним виглядом\n<i>symbol:interval:from:limit</i>\nЗ яких:\n<b>symbol</b> - це символ пошуку(наприклад BTCUSD, ETHUSD)\n<b>interval</b> - це інтервал між запитами, допускаються лише такі параметри: 1 3 5 15 30 60 120 240 360 720 'D' 'M' 'W' (цифри в мінутах)\n<b>from</b> - це відколи буде починатися пошук запитів, параметри аналогічні з інтервалом\n<b>limit</b> - це кількість запитів для отримання (не може бути більше 25)\nНаприклад: BTCUSD:240:W:5");
   chooseButton = "Query Kline";
@@ -223,9 +230,9 @@ bot.hears("Query Kline", (ctx) => {
  *
  */
 
-//TODO - Latest Big Deal +
+//BUTTON - Latest Big Deal ++
 bot.hears("Latest Big Deal", (ctx) => {
-  ctx.reply("Зрозумів, тепер введи будь ласка пару символів, наприклад: APTUSDT / ethusdt / BtCuSdT");
+  ctx.reply("Зрозумів, тепер введіть будь ласка пару символів, наприклад: APTUSDT / solbtc/ BtCuSdC");
   chooseButton = "Latest Big Deal";
 })
 
@@ -233,28 +240,54 @@ bot.hears("Latest Big Deal", (ctx) => {
  * Active orders
  */
 
-//TODO - Get active  +
+//BUTTON - Get active  ++
 bot.hears("Get Active Order", (ctx) => {
-  ctx.reply("Зрозумів, тепер введить будь ласка символ за яким буде пошук активних ордерів, наприклад: USDT / eth / BtC");
-  chooseButton = "Get Active Order";
+  if(chooseApiKey == true)
+  {
+    ctx.reply("Зрозумів, тепер введіть будь ласка символ за яким буде пошук активних ордерів, наприклад: BTC / eth / xRp");
+    chooseButton = "Get Active Order";
+  }else{
+    ctx.reply("Дану функцію неможна використовувати без API ключей");
+  }
+
 })
-//TODO - Place active order ---
+//BUTTON - Place active order ---
 bot.hears("Place Active Order", (ctx) => {
-  ctx.reply("Сделать интерфейс");
-  chooseButton = "Place Active Order"
+  chooseApiKey = true
+  if(chooseApiKey == true)
+  {
+    // ({side: "Sell", symbol:"BTCUSD", order_type: "Limit", qty: 1, price: 20000, time_in_force: "GoodTillCancel"})
+    ctx.replyWithHTML("Зрозумів, тепер введіть будь ласка параметри за наступним виглядом:\n<i>side:symbol:order_type:qty:price:time_in_force</i>\nЗ яких:\n<b>side</b> - це сторона продажу або куплі, яка має лише два варіанти(Buy / Sell)\n<b>symbol</b> - це символ пошуку(наприклад BTC, ETH)\n<b>order_type</b> - це тип ордеру, який буде лише двох видів(Limit / Market\n<b>qty</b> - сума замовлення у $\n<b>price</b> - ціна замовлення\n<b>time_in_force</b> - період активності ордера, буває трьох типів(GoodTillCancel / FillOrKill / ImmediateOrCancel\nБільш детальну інформацію можна переглянути у /info");
+    chooseButton = "Place Active Order"
+  }else{
+    ctx.reply("Дану функцію неможна використовувати без API ключей");
+  }
+
 })
-//TODO Cancel active order +
+//BUTTON Cancel active order ++
 bot.hears("Cancel Active Order", (ctx) => {
-  ctx.replyWithHTML("Зрозумів, тепер введіть будь ласка символ та номер замовлення за яким буде пошук активних ордерів.\nНаприклад: BTC:ae2ecb3f-4447-4599-a178-d95a16e537d7");
-  chooseButton = "Cancel Active Order";
+  if(chooseApiKey == true)
+  {
+    ctx.replyWithHTML("Зрозумів, тепер введіть будь ласка символ та номер ордера за яким буде пошук активних замовлень для відміни.\nЗа форматом: symbol:orderID\nНаприклад: BTC:ae2ecb3f-4447-4599-a178-d95a16e537d7");
+    chooseButton = "Cancel Active Order"
+  }else{
+    ctx.reply("Дану функцію неможна використовувати без API ключей");
+  }
+;
 })
-//TODO Cancel all active order +
+//BUTTON Cancel all active order ++
 bot.hears("Cancel All Active Orders", (ctx) => {
-  ctx.replyWithHTML("Зрозумів, тепер введіть будь ласка символ за яким буде пошук активних ордерів.\nНаприклад: BTC, Eth");
-  chooseButton = "Cancel All Active Orders";
+  if(chooseApiKey == true)
+  {
+    ctx.replyWithHTML("Зрозумів, тепер введіть будь ласка символ за яким буде пошук активних ордерів для відміни.\nНаприклад: BTC, Eth");
+    chooseButton = "Cancel All Active Orders";
+  }else{
+    ctx.reply("Дану функцію неможна використовувати без API ключей");
+  }
+
 })
 
-//TODO - Get APIKEY and APISECRET
+//BUTTON - Get APIKEY and APISECRET ++
 bot.hears(/^[A-Za-z0-9а-яёі]{18}:[A-Za-z0-9а-яёі]{36}/, async (ctx) => {
   message = ctx.message.text;
   var arrayOfStrings = message.split(":");
@@ -280,20 +313,18 @@ bot.hears(/^[A-Za-z0-9а-яёі]{18}:[A-Za-z0-9а-яёі]{36}/, async (ctx) => {
     ctx.reply("Тепер ви можете користуватись функціями бота", keyboardApiYes.reply());
   }
 })
+//HEAR - Cancel Active Order
 bot.hears(/^[A-Za-z0-9]+:[A-Za-z0-9\!\@\#\$\%\^\&\*\)\(+\=\._-]+$/g, (ctx) => {
   if(chooseButton == "Cancel Active Order")
   {
     message = ctx.message.text;
     var arrayOfStrings = message.split(":");
     let symbol = arrayOfStrings[0].toUpperCase() + 'USD', orderId = arrayOfStrings[1];
-    console.log(symbol);
-    console.log(orderId);
     clientInverse.cancelActiveOrder({symbol:symbol, order_id: orderId})
       .then(result => {
         if(result.ret_code == 0)
         {
           ctx.replyWithHTML("Замовлення за номером <i>" + orderId + "</i> було <b>успішно видалено</b>");
-          console.log("getCancelActiveOrder result: ", result);
         }else{
           ctx.reply("Неправильний символ або номер замовлення");
           console.log("getCancelActiveOrder result: ", result);
@@ -305,7 +336,59 @@ bot.hears(/^[A-Za-z0-9]+:[A-Za-z0-9\!\@\#\$\%\^\&\*\)\(+\=\._-]+$/g, (ctx) => {
       });
   }
 })
+//HEAR - Place Active Order
+bot.hears(/^[A-Za-z0-9]+:[A-Za-z0-9]+:[A-Za-z0-9]+:[A-Za-z0-9]+:[A-Za-z0-9]+:[A-Za-z0-9]/, async (ctx) => {
+  if(chooseButton == "Place Active Order")
+  {
+    let message = ctx.message.text;
+    var arrayOfStrings = message.split(":");
+    let side = arrayOfStrings[0].toLowerCase(), symbol = arrayOfStrings[1].toUpperCase() + 'USD', order_type = arrayOfStrings[2].toLowerCase(), qty = arrayOfStrings[3], price = arrayOfStrings[4], timeInForce = arrayOfStrings[5];
+    if(side == 'buy') side = side.replace('buy', 'Buy');
+    else if(side == 'sell') side = side.replace('sell', 'Sell');
+    if(order_type == 'limit') order_type = order_type.replace('limit', 'Limit');
+    else if(order_type == 'market') order_type = order_type.replace('market', 'Market');
+    clientInverse.placeActiveOrder({side: side, symbol: symbol, order_type: order_type, qty: qty, price: price, time_in_force: timeInForce})
+    .then(result => {
+      if(result.ret_code == 0)
+      {
+        let data = result.result,
+            date = new Date(data['created_at']);
+        date = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+        if(data['side'] == 'Buy') side = "Покупка";
+        else if(data['side'] == 'Sell') side = "Продаж";
+
+        if(data['order_type'] == 'Limit') type = "Лімітний";
+        else if(data['order_type'] == 'Market') type = "Ринок";
+
+        if(data['time_in_force'] == 'GoodTillCancel') timeInForce = "Діє до скасування";
+        else if(data['time_in_force'] == 'FillOrKill') timeInForce = "Виконати відразу або анулювати";
+        else if(data['time_in_force'] == 'ImmediateOrCancel') timeInForce = "Виконати відразу або скасувати";
+
+        if(data['order_type'] == 'Limit') price = "\n<b>Ціна замовлення: </b>" + data['price'] + "$";
+        else if(data['order_type'] == 'Market') price = '';
+
+        ctx.replyWithHTML(
+        "Замовлення було успішно створено!" 
+          +"\n<b>Символ: </b>" + data['symbol']
+          + "\n<b>Сторона: </b>" + side
+          + price
+          + "\n<b>Сума замовлення: </b>" + data['qty']
+          + "$\n<b>Тип замовлення: </b>" + type
+          + "\n<b>Період активності замовлення: </b>" + timeInForce
+          + "\n<b>Дата створення: </b>" + date
+          + "\n<b>ID замовлення: </b>" + data['order_id']
+        );
+      }else{
+        ctx.reply("Неправильно введено параметри, будь ласка перевірте правильність їх написання, та спробуйте ще раз");
+      }
+    })
+    .catch(err => {
+      console.error("Place Active Order error: ", err);
+    });
+  }
+})
 bot.hears(/^[A-Za-z0-9]/, (ctx) => {
+  //HEAR - Symbol
   if(chooseButton == "Symbol")
   {
     let message = ctx.message.text.toUpperCase();
@@ -332,13 +415,14 @@ bot.hears(/^[A-Za-z0-9]/, (ctx) => {
             + "\n<b>Об'єм за 24 год: </b>" + data.volume_24h
         );
       }else{
-        ctx.reply("Введено неіснуючий символ, будь ласка викликайте функцію заново");
+        ctx.reply("Неправильно введений символ або інша помилка");
       }
     })
     .catch(err =>{
       ctx.reply("getTickers error: ", err);
     })
   }
+  //HEAR - Order book
   if(chooseButton == "Order book")
   {
     let message = ctx.message.text.toUpperCase();
@@ -363,7 +447,7 @@ bot.hears(/^[A-Za-z0-9]/, (ctx) => {
         ctx.replyWithHTML("Останні 25 ордерів за символом " + message + " на купівлю\n" + answerBuy);
         ctx.replyWithHTML("Останні 25 ордерів за символом " + message + " на продаж\n" + answerSell);
       }else{
-        ctx.reply("Введено неіснуючий символ, будь ласка викликайте функцію заново");
+        ctx.reply("Неправильно введений символ або інша помилка");
       }
 
     })
@@ -371,6 +455,7 @@ bot.hears(/^[A-Za-z0-9]/, (ctx) => {
       console.error("getOrderBook error: ", err);
     });
   }
+  //HEAR - Query Kline
   if(chooseButton == "Query Kline")
   {
     let message = ctx.message.text;
@@ -403,25 +488,26 @@ bot.hears(/^[A-Za-z0-9]/, (ctx) => {
         if(result.ret_code == 0)
         {
           let resLenght = result.result.length;
-          if(result.result.length != limit)
+          if(resLenght != limit)
           {
-            ctx.reply("За зазначений Вами час було отримано лише " + resLenght + " запис\nДля отримання більше записів ви можете або збільшити від коли шукати записи, або зменшити інтервал");
+            ctx.reply("За зазначений Вами час було отримано лише " + resLenght + r + " " + sklonenie(resLenght, ['запис', 'записи', 'записів']) + "\nДля отримання більше записів ви можете або збільшити від коли шукати записи, або зменшити інтервал");
             resultKline(resLenght, ctx, result);
           }else{
             await ctx.reply("Запит вдалий!");
             await resultKline(limit, ctx, result);
           }
         }else{
-          ctx.replyWithHTML("Неправильно введено параметри. \nПродивіться будь ласка правильність їх написання та запустіть функцію ще раз.")
+          ctx.replyWithHTML("Неправильно введено параметри.\nПродивіться будь ласка правильність їх написання та запустіть функцію ще раз.")
         }
       })
       .catch(err => {
         console.error("getKline error: ", err);
       });
     }else{
-      ctx.reply("Неправильно введено інтервал або ліміт");
+      ctx.reply("Неправильно введений інтервал");
     }
   }
+  //HEAR - Latest Big Deal
   if(chooseButton == "Latest Big Deal")
   {
     let message = ctx.message.text.toUpperCase();
@@ -431,7 +517,6 @@ bot.hears(/^[A-Za-z0-9]/, (ctx) => {
         {
           if(result.result.length != 0)
           {
-            console.log(result);
             let answerBuy = '', answerSell = '', value, side, b = 0, s = 0;
             for(var i = 0; i < result.result.length; i++)
             {
@@ -447,19 +532,20 @@ bot.hears(/^[A-Za-z0-9]/, (ctx) => {
                 s++;
               }
             }
-            ctx.replyWithHTML("Найбільші " + b + " угод купівлі за останні 24 години за символом " + message + "\n\n" + answerBuy);
-            ctx.replyWithHTML("Найбільші " + s + " угод продажу за останні 24 години за символом " + message + "\n\n" + answerSell);
+            ctx.replyWithHTML(sklonenie(b, ['Найбільша', 'Найбільші', 'Найбільших']) + " " + b + " " + sklonenie(b, ['угода', 'угоди', 'угод']) + " " + "купівлі за останні 24 години за символом " + message + "\n\n" + answerBuy);
+            ctx.replyWithHTML(sklonenie(s, ['Найбільша', 'Найбільші', 'Найбільших']) + " " + s + " " + sklonenie(s, ['угода', 'угоди', 'угод']) + " " + "продажу за останні 24 години за символом " + message + "\n\n" + answerSell);
           }else{
             ctx.reply("За сьогодні не було угод які перевищували 500.000$");
           }
         }else{
-          ctx.reply("Введено неіснуючий символ, будь ласка викликайте функцію заново");
+          ctx.reply("Неправильно введений символ або інша помилка");
         }
       })
       .catch(err => {
         console.error("getLatest error: ", err);
       });
   }
+  //HEAR - Get Wallet Balance
   if(chooseButton == "Get Wallet Balance")
   {
     let message = ctx.message.text.toUpperCase();
@@ -483,13 +569,14 @@ bot.hears(/^[A-Za-z0-9]/, (ctx) => {
           data['unrealised_pnl'].toFixed(4) + "$"
         );
       }else{
-        ctx.reply("Введено неіснуючий символ, будь ласка викликайте функцію заново");
+        ctx.reply("Неправильно введений символ або інша помилка");
       }
     })
     .catch(err => {
       console.error("getWalletBalance error: ", err);
     });
   }
+  //HEAR - Get Active Order
   if(chooseButton == "Get Active Order")
   {
     let message = ctx.message.text.toUpperCase() + 'USD';
@@ -505,6 +592,7 @@ bot.hears(/^[A-Za-z0-9]/, (ctx) => {
             data = result.result[i];
             date = new Date(data['created_at']);
             date = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+            
             if(data['side'] == 'Buy') side = "Покупка";
             else if(data['side'] == 'Sell') side = "Продаж";
 
@@ -540,6 +628,7 @@ bot.hears(/^[A-Za-z0-9]/, (ctx) => {
       console.error("Get Active Order error: ", err);
     });
   }
+  //HEAR - Cancel All Active Orders
   if(chooseButton == "Cancel All Active Orders")
   {
     let message = ctx.message.text.toUpperCase() + 'USD';
@@ -547,14 +636,15 @@ bot.hears(/^[A-Za-z0-9]/, (ctx) => {
       .then(result => {
         if(result.ret_code == 0)
         {
-          if(result.result.length != 0)
+          let resLenght = result.result.length;
+          if(resLenght != 0)
           {
             let orders = '';
-            for(var i = 0; i < result.result.length; i++)
+            for(var i = 0; i < resLenght; i++)
             {
               orders += "\nID замовлення: " + result.result[i]['clOrdID'];
             }
-            ctx.reply("Було успішно видалено " + result.result.length + " замовлення за номерами:" + orders);
+            ctx.reply("Було успішно видалено " + resLenght + sklonenie(resLenght, [' замовлення', ' замовлення', ' замовлень']) + sklonenie(resLenght, [' за номером:', ' за номерами:', ' за номерами:']) + orders);
           }else{
             ctx.reply("Відсутні ордери");
           }
@@ -566,36 +656,5 @@ bot.hears(/^[A-Za-z0-9]/, (ctx) => {
         console.error("getLatest error: ", err);
       });
   }
-  if(chooseButton == "Place Active Order")
-  {
-    clientInverse.placeActiveOrder({side: "Sell", symbol:"BTCUSD", order_type: "Limit", qty: 1, price: 20000,time_in_force: "Good till cancelled"})
-    .then(result => {
-      console.log("Place Active Order result: ", result);
-    })
-    .catch(err => {
-      console.error("Place Active Order error: ", err);
-    });
-  }
 })
-
-
-
-
-
-
-// clientInverse.getApiKeyInfo()
-//   .then(result => {
-//     console.log("getApiKeyInfo result: ", result);
-//   })
-//   .catch(err => {
-//     console.error("getApiKeyInfo error: ", err);
-//   });
-// clientInverse.getKline({symbol:"BTCUSD", interval:"60", from: 1667018735})
-//   .then(result => {
-//     console.log("getKline result: ", result);
-//   })
-//   .catch(err => {
-//     console.error("getKline error: ", err);
-//   });
-
 bot.launch();
