@@ -91,18 +91,49 @@ bot.action("noAPI", (ctx) => {
 })
 //FUNCTION - info command
 bot.command('info', ctx => {
-  bot.telegram.sendMessage(ctx.chat.id, "Bot Info", {
+  ctx.replyWithHTML("Натисніть на кнопку потрібної Вам функції, для отримання більш детальної інформації:", {
     reply_markup: {
-      keyboard: [
-        [
-          { text: "Credits"},
-          { text: "API" }
-        ]
+      inline_keyboard: [
+        [{ text: "Symbol", callback_data: "infoSymbol" }],
+        [{ text: "Order Book", callback_data: "infoOrderBook" }],
+        [{ text: "Query Kline", callback_data: "infoQueryKline" }],
+        [{ text: "Latest Big Deal", callback_data: "infoLatestBigDeal" }],
+        [{ text: "Get Wallet Balance", callback_data: "infoGetWalletBalance" }],
+        [{ text: "Get Active Order", callback_data: "infoGetActiveOrder" }],
+        [{ text: "Place Active Order", callback_data: "infoPlaceActiveOrder" }],
+        [{ text: "Cancel Active Order", callback_data: "infoCancelActiveOrder" }],
+        [{ text: "Cancel All Active Order", callback_data: "infoCancelAllActiveOrder" }]
       ],
-      resize_keyboard: true,
-      one_time_keyboard: true
-    }
-  })
+    },
+  });
+})
+
+bot.action("infoSymbol", (ctx) => {
+  ctx.replyWithHTML("Користувач вводить символ за яким він бажає отримати детальну інформацію. Символ виглядає як пара двох символів, альткоїна(наприклад BTC) та стейблкоїна(USDT). Стейблкоїн USDT постійно дорівнюї 1$, це для того щоб легче та краще розуміти ціну визначеної криптовалюти. Після введення символа, корисувач отримує інформації, у вигляді:\nСимвол;\nЦіна;\nНапрямок ціни;\nНайвища ціна за 24 год;\nНайменша ціна за 24 год;\nроцентна зміна ціни відносно 1 год;\nЦіна 24 год тому;\nОборот за 24 год;\nОб'єм за 24 год.\n\n")
+})
+bot.action("infoOrderBook", (ctx) =>{
+  ctx.replyWithHTML("Order Book(книга замовлень) - це список замовлень з ордерів що створюють користувачі за визначеної ціної та об'ємом, які виражаються у $ США. У боті користувач може запросити книгу замовлень за визначеним символом та отримати по 25 ордерів на купівлю та продаж. ")
+})
+bot.action("infoQueryKline", (ctx) =>{
+  ctx.replyWithHTML("Query Kline(клин запит) - це функція яка виводить ціну за символом, яка була визначена якимось проміжком часу раніше. Користувач робить запит за параметрами які йому потрібні, кожен параметр обов'язковий. Перший з них це символ для пошуку. Другий це interval(інтервал часу), тобто, це який проміжок часу між якими буде визначатись ціни для виведення, наприклад, інтервал у 60 секунд, це значить, що різница у часі між першої ціною і другої буде у 60 секунд. Третій параметр, це відколи буде починатися пошук цін, будто місяць, тиждень, день, година або навіть 5 секунд. Та останній параметр це кількість запитів який отримає користувач, є обмеження у 25 запитів.")
+})
+bot.action("infoLatestBigDeal", (ctx) =>{
+  ctx.replyWithHTML("Latest Big Deal(остання велика згода) - це функція яка виводить згоди, сума яких була перевищена за 500.000$. Ця функція потребує введення символу з обов'язковим стейблкоїном USDT. Також, вона буде корисна тим, що досить великі згоди впливають на ринок і буде дуже цікаво на яку ціну була згода що змінила потік ринку.")
+})
+bot.action("infoGetWalletBalance", (ctx) =>{
+  ctx.replyWithHTML("Get Wallet Balance(отримання балансу гаманця) - ця функція виводить у подробицях баланс гаманця користувача за ринком деривіативів. Ця функція буде дуже зручно тим користувачам, у яких досить слабкий зв'язок Інтернету, для того щоб зайти на сайт/додаток біржі ByBit для перегляду балансу свого гаманця");
+})
+bot.action("infoGetActiveOrder", (ctx) =>{
+  ctx.replyWithHTML("Get Active Order(отримання активного замовлення) - ця функція виконує виведення усіх активних замовлень користувача на ринку диривативів, вона потребує обов'язкого введення API Key та API Secret юзера, без них даною функцієї не можна буде користуватись");
+})
+bot.action("infoPlaceActiveOrder", (ctx) =>{
+  ctx.replyWithHTML("");
+})
+bot.action("infoCancelActiveOrder", (ctx) =>{
+  ctx.replyWithHTML("Cancel Active Order(відміна активного замовлення) - ця функція яка відміняє активне замовлення на ринку диривативів за назвою символа та ідентифікаційним номером самого ордера, який можна отримати з функції GetActiveOrder, але дана функція може відміняти ті ордери, які не були виконані або виконані частично.");
+})
+bot.action("infoCancelAllActiveOrder", (ctx) =>{
+  ctx.replyWithHTML("Cancel All Active Orders(відміна всіх активних замовлень) - назва функції сама каже за себе, то що вона відміняє усі активні ордери користувача на ринку диривативів, які не були виконані або виконані частично");
 })
 //FUNCTION - getTime
 function getTime() {
@@ -154,8 +185,6 @@ bot.hears("time", ctx=> {
     {
       side = side.replace('text', 'Text');
     }
-console.log(side);
-String.prototype.replace
   // getTime();
 })
 //HEAR - Get ApiKey
@@ -190,7 +219,7 @@ bot.hears("apikeyinfo", async (ctx) => {
  *
  */
 
-//BUTTON - Wallet Balance ++
+//BUTTON - Wallet Balance
 bot.hears("Get Wallet Balance", (ctx) =>{
   if(chooseApiKey == true)
   {
@@ -208,17 +237,17 @@ bot.hears("Get Wallet Balance", (ctx) =>{
  *
  */
 
-//BUTTON- Symbol ++
+//BUTTON- Symbol
 bot.hears("Symbol", (ctx) => {
   ctx.reply("Зрозумів, тепер введіть будь ласка пару символів, наприклад: APTUSDT / ethusdt / BtCuSdT");
   chooseButton = "Symbol";
 })
-//BUTTON - Order book ++
+//BUTTON - Order book
 bot.hears("Order book", (ctx) => {
   ctx.reply("Зрозумів, тепер введіть будь ласка пару символів, наприклад: APTUSDT / solbtc / BtCuSdC");
   chooseButton = "Order book";
 })
-//BUTTON - Query Kline ++
+//BUTTON - Query Kline
 bot.hears("Query Kline", (ctx) => {
   ctx.replyWithHTML("Зрозумів, тепер введіть будь ласка параметри за наступним виглядом\n<i>symbol:interval:from:limit</i>\nЗ яких:\n<b>symbol</b> - це символ пошуку(наприклад BTCUSD, ETHUSD)\n<b>interval</b> - це інтервал між запитами, допускаються лише такі параметри: 1 3 5 15 30 60 120 240 360 720 'D' 'M' 'W' (цифри в мінутах)\n<b>from</b> - це відколи буде починатися пошук запитів, параметри аналогічні з інтервалом\n<b>limit</b> - це кількість запитів для отримання (не може бути більше 25)\nНаприклад: BTCUSD:240:W:5");
   chooseButton = "Query Kline";
@@ -230,9 +259,9 @@ bot.hears("Query Kline", (ctx) => {
  *
  */
 
-//BUTTON - Latest Big Deal ++
+//BUTTON - Latest Big Deal
 bot.hears("Latest Big Deal", (ctx) => {
-  ctx.reply("Зрозумів, тепер введіть будь ласка пару символів, наприклад: APTUSDT / solbtc/ BtCuSdC");
+  ctx.reply("Зрозумів, тепер введіть будь ласка пару символів, наприклад: APTUSDT / solusdt / BtCuSdT");
   chooseButton = "Latest Big Deal";
 })
 
@@ -240,7 +269,7 @@ bot.hears("Latest Big Deal", (ctx) => {
  * Active orders
  */
 
-//BUTTON - Get active  ++
+//BUTTON - Get active
 bot.hears("Get Active Order", (ctx) => {
   if(chooseApiKey == true)
   {
@@ -251,20 +280,20 @@ bot.hears("Get Active Order", (ctx) => {
   }
 
 })
-//BUTTON - Place active order ---
+//BUTTON - Place active order
 bot.hears("Place Active Order", (ctx) => {
   chooseApiKey = true
   if(chooseApiKey == true)
   {
     // ({side: "Sell", symbol:"BTCUSD", order_type: "Limit", qty: 1, price: 20000, time_in_force: "GoodTillCancel"})
-    ctx.replyWithHTML("Зрозумів, тепер введіть будь ласка параметри за наступним виглядом:\n<i>side:symbol:order_type:qty:price:time_in_force</i>\nЗ яких:\n<b>side</b> - це сторона продажу або куплі, яка має лише два варіанти(Buy / Sell)\n<b>symbol</b> - це символ пошуку(наприклад BTC, ETH)\n<b>order_type</b> - це тип ордеру, який буде лише двох видів(Limit / Market\n<b>qty</b> - сума замовлення у $\n<b>price</b> - ціна замовлення\n<b>time_in_force</b> - період активності ордера, буває трьох типів(GoodTillCancel / FillOrKill / ImmediateOrCancel\nБільш детальну інформацію можна переглянути у /info");
+    ctx.replyWithHTML("Зрозумів, тепер введіть будь ласка параметри за наступним виглядом:\n<i>side:symbol:order_type:qty:price:time_in_force</i>\nЗ яких:\n<b>side</b> - це сторона продажу або куплі, яка має лише два варіанти(Buy / Sell)\n<b>symbol</b> - це символ пошуку(наприклад BTC, ETH)\n<b>order_type</b> - це тип ордеру, який буде лише двох видів(Limit / Market\n<b>qty</b> - сума замовлення у $\n<b>price</b> - ціна замовлення\n<b>time_in_force</b> - період активності ордера, буває трьох типів(GoodTillCancel / FillOrKill / ImmediateOrCancel)\nБільш детальну інформацію можна переглянути у /info");
     chooseButton = "Place Active Order"
   }else{
     ctx.reply("Дану функцію неможна використовувати без API ключей");
   }
 
 })
-//BUTTON Cancel active order ++
+//BUTTON - Cancel active order
 bot.hears("Cancel Active Order", (ctx) => {
   if(chooseApiKey == true)
   {
@@ -275,7 +304,7 @@ bot.hears("Cancel Active Order", (ctx) => {
   }
 ;
 })
-//BUTTON Cancel all active order ++
+//BUTTON - Cancel all active order
 bot.hears("Cancel All Active Orders", (ctx) => {
   if(chooseApiKey == true)
   {
@@ -287,7 +316,7 @@ bot.hears("Cancel All Active Orders", (ctx) => {
 
 })
 
-//BUTTON - Get APIKEY and APISECRET ++
+//BUTTON - Get APIKEY and APISECRET
 bot.hears(/^[A-Za-z0-9а-яёі]{18}:[A-Za-z0-9а-яёі]{36}/, async (ctx) => {
   message = ctx.message.text;
   var arrayOfStrings = message.split(":");
@@ -327,7 +356,6 @@ bot.hears(/^[A-Za-z0-9]+:[A-Za-z0-9\!\@\#\$\%\^\&\*\)\(+\=\._-]+$/g, (ctx) => {
           ctx.replyWithHTML("Замовлення за номером <i>" + orderId + "</i> було <b>успішно видалено</b>");
         }else{
           ctx.reply("Неправильний символ або номер замовлення");
-          console.log("getCancelActiveOrder result: ", result);
         }
 
       })
@@ -439,9 +467,9 @@ bot.hears(/^[A-Za-z0-9]/, (ctx) => {
           price = result.result[i]['price'];
           //сделать нормальный необъемный вывод
           if(side == 'Buy'){
-            answerBuy += "<b>Ціна :</b>" + price + "\n" + "<b>Об'єм: </b>" + size + "\n\n";
+            answerBuy += "<b>Ціна :</b>" + price + "$\n<b>Об'єм: </b>" + size + "$\n\n";
           }else if(side == 'Sell'){
-            answerSell += "<b>Ціна :</b>" + price + "\n" + "<b>Об'єм: </b>" + size + "\n\n";
+            answerSell += "<b>Ціна :</b>" + price + "$\n<b>Об'єм: </b>" + size + "$\n\n";
           }
         }
         ctx.replyWithHTML("Останні 25 ордерів за символом " + message + " на купівлю\n" + answerBuy);
@@ -464,7 +492,6 @@ bot.hears(/^[A-Za-z0-9]/, (ctx) => {
     if((interval == 1 || interval == 5 || interval == 15 || interval == 30 || interval == 60 || interval == 120 || interval == 240 || interval == 360 || interval == 720 || interval == 'D' || interval == 'M' || interval == 'W') && limit <=25)
     {
       fromTime = new Date();
-      console.log(fromTime);
       if(Number.isInteger(from) != true)
       {
         switch(from)
@@ -476,15 +503,12 @@ bot.hears(/^[A-Za-z0-9]/, (ctx) => {
           case 'M': from = 2628000; break;
         }
         fromTime = Math.round(fromTime / 1000 - from);
-              console.log(fromTime);
       }else {
         fromTime = Math.round(fromTime / 1000);
-              console.log(fromTime);
       }
 
       clientInverse.getKline({symbol:symbol, interval:interval, from: fromTime, limit: limit})
       .then(async result => {
-            // console.log("getKline result: ", result);
         if(result.ret_code == 0)
         {
           let resLenght = result.result.length;
@@ -513,6 +537,7 @@ bot.hears(/^[A-Za-z0-9]/, (ctx) => {
     let message = ctx.message.text.toUpperCase();
     clientInverse.getLatestBigDeal({symbol: message, limit: 500})
       .then(result => {
+        console.log(result);
         if(result.ret_code == 0)
         {
           if(result.result.length != 0)
