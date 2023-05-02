@@ -1,4 +1,4 @@
-import bot from "./config.js";
+const bot = require('./config.js');
 
 bot.action("infoSymbol", (ctx) => {
   ctx.replyWithHTML(
@@ -44,7 +44,7 @@ bot.action("infoCancelAllActiveOrder", (ctx) => {
   );
 });
 
-export function getInfoText() {
+module.exports = getInfoText = () => {
   return bot.command("info", (ctx) => {
     ctx.replyWithHTML(
       "Натисніть на кнопку потрібної Вам функції, для отримання більш детальної інформації:",

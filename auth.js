@@ -1,6 +1,4 @@
-import bot from "./config.js";
-import { Keyboard, Key } from "telegram-keyboard";
-import { InverseClient } from "bybit-api";
+const bot = require("./config.js");
 
 let chooseApiKey,
   API_KEY = "",
@@ -8,30 +6,37 @@ let chooseApiKey,
 const useTestnet = false,
   recvWindow = 5000;
 
-(API_KEY = "riUPRJsqjBSd34i21h"),
-  (API_SECRET = "JAXYn81CKYUJNgx3CVbVl09ufIFhSISwQTqD");
-const keyboardApiYes = Keyboard.make(
-  [
-    "Symbol",
-    "Order book",
-    "Query Kline",
-    "Latest Big Deal",
-    "Get Active Order",
-    "Cancel Active Order",
-    "Place Active Order",
-    "Cancel All Active Orders",
-    "Get Wallet Balance",
-  ],
-  {
-    pattern: [4, 2, 2],
-  }
-);
-const keyboardApiNo = Keyboard.make([
-  "Symbol",
-  "Order book",
-  "Query Kline",
-  "Latest Big Deal",
-]);
+//      Keyboards
+
+db.users.find({$or:[{age:22},{age:25}]})
+
+// const keyboardApiYes = Keyboard.make(
+//   [
+//     "Symbol",
+//     "Order book",
+//     "Query Kline",
+//     "Latest Big Deal",
+//     "Get Active Order",
+//     "Cancel Active Order",
+//     "Place Active Order",
+//     "Cancel All Active Orders",
+//     "Get Wallet Balance",
+//   ],
+//   {
+//     pattern: [4, 2, 2],
+//   }
+// );
+
+// const keyboardApiNo = Keyboard.make([
+//   "Symbol",
+//   "Order book",
+//   "Query Kline",
+//   "Latest Big Deal",
+// ]);
+
+
+//Написать функцию для yesApi и noAPI, которая принимает chooseAPiKey 
+const isAPI = (choose) => {};
 
 bot.action("yesAPI", async (ctx) => {
   ctx.deleteMessage(ctx.inlineMessageId);
@@ -108,7 +113,7 @@ bot.hears(/^[A-Za-z0-9а-яёі]{18}:[A-Za-z0-9а-яёі]{36}/, async (ctx) => {
   }
 });
 
-export function botStart() {
+module.exports = function botStart() {
   return bot.start(async (ctx) => {
     await bot.telegram.sendMessage(
       ctx.chat.id,
@@ -131,7 +136,7 @@ export function botStart() {
       },
     });
   });
-}
+};
 
 export { chooseApiKey, API_KEY, API_SECRET, recvWindow };
 export const clientInverse = new InverseClient({
@@ -141,3 +146,9 @@ export const clientInverse = new InverseClient({
   recv_window: recvWindow,
 });
 
+db.users.insertMany([
+  { name: "John", age: 20 },
+  { name: "Tom", age: 21 },
+  { name: "Kony", age: 22 },
+  { name: "Chris", age: 23 },
+]);
