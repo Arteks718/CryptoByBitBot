@@ -1,12 +1,27 @@
-const bot = require("./config.js");
+const { bot } = require('./config.js');
 const getInfoText = require("./info.js");
-const { MongoClient } = require("mongodb");
-const { RestClientV5 } = require("bybit-api");
+const startBot = require("./auth.js");
+
+bot.start((ctx) => {
+  startBot(ctx);
+})
+
+bot.command("info", (ctx) => {
+  getInfoText(ctx);
+})
+
+bot.launch();
+
+
+
+
+
+
+
 
 // import { botStart, chooseApiKey, API_KEY, API_SECRET, clientInverse } from "./auth.js"
 // import { sklonenie, getRunTime, resultKline, getTime } from './functions.js';
 
-getInfoText();
 // botStart();
 
 //HEAR - time
@@ -44,6 +59,10 @@ bot.hears("apikeyinfo", async (ctx) => {
       console.error("getApiKeyInfo error: ", err);
     });
 });
+
+
+
+
 
 /**
  *
@@ -487,4 +506,4 @@ bot.hears("apikeyinfo", async (ctx) => {
 //       });
 //   }
 // })
-bot.launch();
+// bot.launch();

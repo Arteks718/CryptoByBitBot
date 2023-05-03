@@ -1,4 +1,4 @@
-const bot = require('./config.js');
+const { bot } = require("./config.js");
 
 bot.action("infoSymbol", (ctx) => {
   ctx.replyWithHTML(
@@ -31,7 +31,7 @@ bot.action("infoGetActiveOrder", (ctx) => {
   );
 });
 bot.action("infoPlaceActiveOrder", (ctx) => {
-  ctx.replyWithHTML("");
+  ctx.replyWithHTML("asd");
 });
 bot.action("infoCancelActiveOrder", (ctx) => {
   ctx.replyWithHTML(
@@ -44,45 +44,43 @@ bot.action("infoCancelAllActiveOrder", (ctx) => {
   );
 });
 
-module.exports = getInfoText = () => {
-  return bot.command("info", (ctx) => {
-    ctx.replyWithHTML(
-      "Натисніть на кнопку потрібної Вам функції, для отримання більш детальної інформації:",
-      {
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: "Symbol", callback_data: "infoSymbol" }],
-            [{ text: "Order Book", callback_data: "infoOrderBook" }],
-            [{ text: "Query Kline", callback_data: "infoQueryKline" }],
-            [{ text: "Latest Big Deal", callback_data: "infoLatestBigDeal" }],
-            [
-              {
-                text: "Get Wallet Balance",
-                callback_data: "infoGetWalletBalance",
-              },
-            ],
-            [{ text: "Get Active Order", callback_data: "infoGetActiveOrder" }],
-            [
-              {
-                text: "Place Active Order",
-                callback_data: "infoPlaceActiveOrder",
-              },
-            ],
-            [
-              {
-                text: "Cancel Active Order",
-                callback_data: "infoCancelActiveOrder",
-              },
-            ],
-            [
-              {
-                text: "Cancel All Active Order",
-                callback_data: "infoCancelAllActiveOrder",
-              },
-            ],
+module.exports = (ctx) => {
+  return ctx.replyWithHTML(
+    "Натисніть на кнопку потрібної Вам функції, для отримання більш детальної інформації:",
+    {
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: "Symbol", callback_data: "infoSymbol" }],
+          [{ text: "Order Book", callback_data: "infoOrderBook" }],
+          [{ text: "Query Kline", callback_data: "infoQueryKline" }],
+          [{ text: "Latest Big Deal", callback_data: "infoLatestBigDeal" }],
+          [
+            {
+              text: "Get Wallet Balance",
+              callback_data: "infoGetWalletBalance",
+            },
           ],
-        },
-      }
-    );
-  });
-}
+          [{ text: "Get Active Order", callback_data: "infoGetActiveOrder" }],
+          [
+            {
+              text: "Place Active Order",
+              callback_data: "infoPlaceActiveOrder",
+            },
+          ],
+          [
+            {
+              text: "Cancel Active Order",
+              callback_data: "infoCancelActiveOrder",
+            },
+          ],
+          [
+            {
+              text: "Cancel All Active Order",
+              callback_data: "infoCancelAllActiveOrder",
+            },
+          ],
+        ],
+      },
+    }
+  );
+};
