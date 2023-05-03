@@ -145,10 +145,3 @@ export const clientInverse = new InverseClient({
   testnet: useTestnet,
   recv_window: recvWindow,
 });
-
-db.users.insertMany([
-  { name: "John", age: 20 },
-  { name: "Tom", age: 21 },
-  { name: "Kony", age: 22 },
-  { name: "Chris", age: 23 },
-]);

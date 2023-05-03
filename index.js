@@ -1,6 +1,7 @@
-const bot = require('./config.js');
-const getInfoText = require('./info.js');
-const { RestClientV5 } = require('bybit-api');
+const bot = require("./config.js");
+const getInfoText = require("./info.js");
+const { MongoClient } = require("mongodb");
+const { RestClientV5 } = require("bybit-api");
 
 // import { botStart, chooseApiKey, API_KEY, API_SECRET, clientInverse } from "./auth.js"
 // import { sklonenie, getRunTime, resultKline, getTime } from './functions.js';
@@ -8,47 +9,41 @@ const { RestClientV5 } = require('bybit-api');
 getInfoText();
 // botStart();
 
-//riUPRJsqjBSd34i21h:JAXYn81CKYUJNgx3CVbVl09ufIFhSISwQTqD
-
-
-
-
 //HEAR - time
-bot.hears("time", ctx=> {
-  let side = 'TEXT';
+bot.hears("time", (ctx) => {
+  let side = "TEXT";
   side = side.toLowerCase();
-    if(side == 'text')
-    {
-      side = side.replace('text', 'Text');
-    }
+  if (side == "text") {
+    side = side.replace("text", "Text");
+  }
   getTime();
-})
+});
 //HEAR - Get ApiKey
 bot.hears("apikey", async (ctx) => {
-  if(API_KEY != "" && API_SECRET != "")
-  {
+  if (API_KEY != "" && API_SECRET != "") {
     console.log("test");
-     ctx.reply(API_KEY);
-     ctx.reply(API_SECRET);
+    ctx.reply(API_KEY);
+    ctx.reply(API_SECRET);
     console.log(API_KEY.length);
     console.log(API_SECRET.length);
     console.log(API_KEY);
     console.log(API_SECRET);
     console.log(clientInverse);
-  }else{
+  } else {
     ctx.reply("No");
   }
-})
+});
 //HEAR - Get ApiKeyInfo
 bot.hears("apikeyinfo", async (ctx) => {
-  clientInverse.getApiKeyInfo()
-  .then(result => {
-    console.log("getApiKeyInfo result: ", result);
-  })
-  .catch(err => {
-    console.error("getApiKeyInfo error: ", err);
-  });
-})
+  clientInverse
+    .getApiKeyInfo()
+    .then((result) => {
+      console.log("getApiKeyInfo result: ", result);
+    })
+    .catch((err) => {
+      console.error("getApiKeyInfo error: ", err);
+    });
+});
 
 /**
  *
@@ -151,9 +146,6 @@ bot.hears("apikeyinfo", async (ctx) => {
 //   }
 // })
 
-
-
-
 //HEAR - Cancel Active Order
 // bot.hears(/^[A-Za-z0-9]+:[A-Za-z0-9\!\@\#\$\%\^\&\*\)\(+\=\._-]+$/g, (ctx) => {
 //   if(chooseButton == "Cancel Active Order")
@@ -208,7 +200,7 @@ bot.hears("apikeyinfo", async (ctx) => {
 //         else if(data['order_type'] == 'Market') price = '';
 
 //         ctx.replyWithHTML(
-//         "Замовлення було успішно створено!" 
+//         "Замовлення було успішно створено!"
 //           +"\n<b>Символ: </b>" + data['symbol']
 //           + "\n<b>Сторона: </b>" + side
 //           + price
@@ -430,7 +422,7 @@ bot.hears("apikeyinfo", async (ctx) => {
 //             data = result.result[i];
 //             date = new Date(data['created_at']);
 //             date = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-            
+
 //             if(data['side'] == 'Buy') side = "Покупка";
 //             else if(data['side'] == 'Sell') side = "Продаж";
 
