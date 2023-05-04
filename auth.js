@@ -8,16 +8,21 @@ module.exports = async (ctx) => {
     console.log("Connect completed");
     const users = client.db("cryptobybitbot").collection("users");
 
+    await users.findOneAndDelete({ idTelegram: ctx.chat.id });
     // Пошук користувача у базі даних
-    if (await users.findOne({ idTelegram: ctx.chat.id })) 
-    {
-    //   ctx.reply("Радий знову Вас бачити");
-    // } else {
+    if (await users.findOne({ idTelegram: ctx.chat.id })) {
+      ctx.reply("Радий знову Вас бачити");
+    } else {
       ctx.reply("Привіт, вітаю тебе у боті CryptoByBitBot!🙂");
-      ctx.reply(
+      await ctx.reply(
         "Для працездібності більшості функцій тобі потрібно ввести свій API Key та API Secret Key"
       );
-      await users.insertOne({ idTelegram: ctx.chat.id });
+
+      await users.insertOne({
+        idTelegram: ctx.chat.id,
+        status: "buttonSelection",
+      });
+
       await ctx.replyWithHTML("Чи бажаєте ввести ключі?", {
         reply_markup: {
           inline_keyboard: [
@@ -35,19 +40,79 @@ module.exports = async (ctx) => {
 bot.action("yesAPI", async (ctx) => chooseButtonAPI(ctx, true));
 bot.action("noAPI", async (ctx) => chooseButtonAPI(ctx, false));
 
-
 // перекинути зі старту в ось цю функцію моменти з привітанням
 const greeting = (ctx) => {};
 
 // функція, яка йде після привітання де користувач обирає чи вводити ключі, чи не вводити
 // треба придумати як додавати користувачу нове поле chooseAPI
 // тобто зробити константу куди записувати користувача
-const chooseButtonAPI = (ctx, button) => {
+const chooseButtonAPI = async (ctx, button) => {
   try {
+    // Видалення інлайн клавіатури
     ctx.deleteMessage(ctx.inlineMessageId);
-    console.log(ctx)
+    if (button) {
+      const users = client.db("cryptobybitbot").collection("users");
+      users.updateOne(
+        { idTelegram: ctx.chat.id },
+        { $set: { status: "inputAPIKey" } }
+      );
+      await inputAPIKeys(ctx, users);
+    }
   } catch (error) {
-    console.log(error)
+    console.log(error);
+  }
+};
+
+const inputAPIKeys = async (ctx, db) => {
+  const keys = {
+    APIKey: "",
+    APISecret: "",
+  };
+
+  try {
+    // Введення API key
+    await ctx.reply("Введіть API key");
+    bot.on("text", async (ctx) => {
+      if (await db.findOne({ idTelegram: ctx.chat.id, status: "inputAPIKey" })) {
+        console.log("test success");
+        (/^[A-Za-z0-9]{18}$/.test(ctx.message.text))
+          ? db.updateOne(
+              { idTelegram: ctx.chat.id },
+              { $set: { status: "inputAPISecret", apiKey: ctx.message.text } })
+          : ctx.reply("API Key повинен складатися з 18 символів. Будь ласка, спробуйте ще раз.");
+      } else {
+        console.log("test error");
+      }
+    });
+
+    if (
+      await db.findOne({ idTelegram: ctx.chat.id, status: "inputAPISecret" })
+    ) {
+      console.log("test add api secret");
+      bot.on("text", (ctx) => {
+        if (/^[A-Za-z0-9]{36}$/.test(ctx.message.text)) {
+          db.updateOne(
+            { idTelegram: ctx.chat.id },
+            { $set: { status: "mainMenu", apiSecret: ctx.message.text } }
+          );
+        } else {
+          ctx.reply(
+            "API Key повинен складатися з 36 символів. Будь ласка, спробуйте ще раз."
+          );
+        }
+      });
+    }
+
+    // bot.hears(/^[A-Za-z0-9]{18}/, (ctx) => {keys.APIKey = ctx.message.text})
+
+    // // Введення API Secret
+    // await ctx.reply("Введіть API Secret")
+    // bot.hears(/^[A-Za-z0-9]{36}/, (ctx) => {keys.APISecret = ctx.message.text })
+
+    // // Оновлення даних користувача з новими ключами
+    // await db.updateOne({ idTelegram: ctx.chat.id}, { $set: [{ apiKey: keys.APIKey}, { apiSecret: keys.APISecret}]})
+  } catch (error) {
+    console.log(error);
   }
 };
 

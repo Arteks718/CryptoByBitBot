@@ -10,6 +10,31 @@ bot.command("info", (ctx) => {
   getInfoText(ctx);
 })
 
+
+const { Markup, Extra } = require('telegraf');
+
+bot.hears('show_keyboard', (ctx) => {
+  const keyboard = Markup
+    .keyboard([
+      ['Button 1'],
+      ['Button 2'],
+    ])
+    .resize().oneTime()
+
+  ctx.reply('Here is your keyboard!', keyboard);
+});
+
+bot.action('Button 1', (ctx) => {
+  ctx.reply('You pressed Button 1!');
+});
+
+bot.action('Button 2', (ctx) => {
+  ctx.reply('You pressed Button 2!');
+});
+  
+
+
+
 bot.launch();
 
 
