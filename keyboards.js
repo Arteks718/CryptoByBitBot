@@ -1,17 +1,45 @@
-const { Markup } = require('telegraf') 
+const { Markup } = require("telegraf");
 
-const mainKeyboard = Markup
-  .keyboard([
-    ['Ринок Деривативів', 'Ринок Споту'],
-    []
-  ])
+const mainKeyboard = Markup.keyboard([
+  "Ринок Деривативів",
+  "Ринок Споту",
+]).oneTime();
 
-const spotAPI = 
+const settingKeyboard = Markup.keyboard([
+  "Змінити API ключі",
+  "Підписатись на оновлення",
+]).resize();
 
-const spotWithoutAPI = 
+const directivesAPI = Markup.keyboard([
+  ["Get Tickers", "Get OrderBook", "Get Kline"],
+  ["Amend Order", "Place Order", "Cancel Order", "Cancel All Orders"],
+  ["Get Open Orders", "Get Orders History", "Get Wallet Balance"],
+  ["Повернутись на головну"],
+]).resize().oneTime();
 
-const directivesAPI
+const directivesWithoutAPI = Markup.keyboard([
+  ["Get Tickers", "Get OrderBook", "Get Kline"],
+  ["Повернутись на головну"],
+]).resize().oneTime();
 
-const directivesWithoutAPI
+const spotAPI = Markup.keyboard([
+  ["Get Tickers", "Get OrderBook", "Get Kline"],
+  ["Amend Order", "Place Order", "Cancel Order", "Cancel All Orders"],
+  ["Get Open Orders", "Get Orders History", "Get Wallet Balance"],
+  ["Повернутись на головну"],
+]).resize().oneTime();
 
-module.exports = { mainKeyboard, spotAPI, spotWithoutAPI, directivesAPI, directivesWithoutAPI}
+const spotWithoutAPI = Markup.keyboard([
+  ["Get Tickers", "Get OrderBook", "Get Kline"],
+  ["Повернутись на головну"],
+]).resize().oneTime();
+
+
+module.exports = {
+  mainKeyboard,
+  settingKeyboard,
+  directivesAPI,
+  directivesWithoutAPI,
+  spotAPI,
+  spotWithoutAPI
+};

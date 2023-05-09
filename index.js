@@ -1,8 +1,12 @@
-const { bot } = require('./config.js');
+const { bot, client } = require('./config.js');
 const getInfoText = require("./info.js");
 const startBot = require("./auth.js");
+const { calldirectivesMarket, callSpotMarket, callMainMenu } = require('./mainMenu.js');
+const { RestClientV5, InverseClient } = require('bybit-api')
 
-bot.start((ctx) => {
+bot.start(async (ctx) => {
+  await client.connect();
+  console.log("Connect completed");
   startBot(ctx);
 })
 
@@ -10,28 +14,63 @@ bot.command("info", (ctx) => {
   getInfoText(ctx);
 })
 
+bot.hears('Ринок Деривативів', (ctx) => calldirectivesMarket(ctx))
 
-const { Markup, Extra } = require('telegraf');
+bot.hears('Ринок Споту', (ctx) => callSpotMarket(ctx))
 
-bot.hears('show_keyboard', (ctx) => {
-  const keyboard = Markup
-    .keyboard([
-      ['Button 1'],
-      ['Button 2'],
-    ])
-    .resize().oneTime()
+bot.hears("Повернутись на головну", (ctx) => callMainMenu(ctx))
 
-  ctx.reply('Here is your keyboard!', keyboard);
+const clientAPI = new RestClientV5({
+  key: "CmU95bW9c2SFIvI2sP",
+  secret: "W2EHoDIwz8HdSb33i68FRpxJEGhbrCHTRz6a",
+  testnet: false,
+  recv_window: 5000
 });
 
-bot.action('Button 1', (ctx) => {
-  ctx.reply('You pressed Button 1!');
-});
+const clientTest = new InverseClient({
+  key: "CmU95bW9c2SFIvI2sP",
+  secret: "W2EHoDIwz8HdSb33i68FRpxJEGhbrCHTRz6a",
+  testnet: false,
+  recv_window: 5000
+})
 
-bot.action('Button 2', (ctx) => {
-  ctx.reply('You pressed Button 2!');
-});
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+bot.hears('test', async (ctx) => {
+  clientAPI.getWalletBalance({accountType: 'SPOT', coin: 'USDT'})
+  .then(result => {
+    console.log(result.result)
+  })
+  .catch(err => {
+    console.error("getAccountInfo error: ", err);
+  });
+})
+
+bot.hears('test2', async (ctx) => {
+  clientAPI
+  .getAccountInfo()
+  .then((result) => {
+    result.list.map(coin => {
+      console.log(coin);
+    })
+  })
+  .catch((err) => {
+    console.error("getApiKeyInfo error: ", err);
+  });
+})
+
+
 
 
 
