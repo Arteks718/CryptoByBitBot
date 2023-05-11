@@ -1,7 +1,7 @@
 const { Markup } = require("telegraf");
 
 const mainKeyboard = Markup.keyboard([
-  "Ринок Деривативів",
+  "Ринок Деривативів(USDT безстрокові)",
   "Ринок Споту",
 ]).oneTime();
 

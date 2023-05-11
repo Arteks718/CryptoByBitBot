@@ -2,6 +2,7 @@ const { bot, client, users } = require("./config.js");
 const inputAPIKeys = require("./inputAPIKeys.js");
 const { mainKeyboard } = require("./keyboards.js")
 
+
 module.exports = async (ctx) => {
   try {
     await users.findOneAndDelete({ idTelegram: ctx.chat.id });

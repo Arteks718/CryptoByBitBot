@@ -20,7 +20,7 @@ bot.hears('Ринок Споту', (ctx) => callSpotMarket(ctx))
 
 bot.hears("Повернутись на головну", (ctx) => callMainMenu(ctx))
 
-const clientAPI = new RestClientV5({
+const clientByBit = new RestClientV5({
   key: "CmU95bW9c2SFIvI2sP",
   secret: "W2EHoDIwz8HdSb33i68FRpxJEGhbrCHTRz6a",
   testnet: false,
@@ -38,19 +38,12 @@ const clientTest = new InverseClient({
 
 
 
-
-
-
-
-
-
-
-
-
 bot.hears('test', async (ctx) => {
-  clientAPI.getWalletBalance({accountType: 'SPOT', coin: 'USDT'})
+  clientAPI.getWalletBalance({accountType: 'SPOT', coin: 'BTC'})
   .then(result => {
-    console.log(result.result)
+    console.log(result)
+    const test = result.result.list[0].coin;
+    console.log(test)
   })
   .catch(err => {
     console.error("getAccountInfo error: ", err);
@@ -58,20 +51,15 @@ bot.hears('test', async (ctx) => {
 })
 
 bot.hears('test2', async (ctx) => {
-  clientAPI
-  .getAccountInfo()
+  clientTest
+  .getWalletBalance({coin: "USDT"})
   .then((result) => {
-    result.list.map(coin => {
-      console.log(coin);
-    })
+    console.log(result)
   })
   .catch((err) => {
     console.error("getApiKeyInfo error: ", err);
   });
 })
-
-
-
 
 
 bot.launch();

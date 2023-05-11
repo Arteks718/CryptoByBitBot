@@ -1,3 +1,0 @@
-const findUser = (ctx, users) => {
-  
-}
