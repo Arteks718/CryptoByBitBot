@@ -1,6 +1,7 @@
 const { bot, client } = require('./config.js');
 const getInfoText = require("./info.js");
 const startBot = require("./auth.js");
+const direvativesMarket = require("./derivatives/derivativesMarket.js")
 const { calldirectivesMarket, callSpotMarket, callMainMenu } = require('./mainMenu.js');
 const { RestClientV5, InverseClient } = require('bybit-api')
 
@@ -14,11 +15,14 @@ bot.command("info", (ctx) => {
   getInfoText(ctx);
 })
 
-bot.hears('Ринок Деривативів', (ctx) => calldirectivesMarket(ctx))
+bot.hears('Ринок Деривативів (USDT безстрокові)', (ctx) => calldirectivesMarket(ctx))
 
 bot.hears('Ринок Споту', (ctx) => callSpotMarket(ctx))
 
 bot.hears("Повернутись на головну", (ctx) => callMainMenu(ctx))
+
+direvativesMarket();
+
 
 const clientByBit = new RestClientV5({
   key: "CmU95bW9c2SFIvI2sP",
@@ -26,6 +30,7 @@ const clientByBit = new RestClientV5({
   testnet: false,
   recv_window: 5000
 });
+
 
 const clientTest = new InverseClient({
   key: "CmU95bW9c2SFIvI2sP",
@@ -36,30 +41,28 @@ const clientTest = new InverseClient({
 
 
 
+// bot.hears('test', async (ctx) => {
+//   clientAPI.getWalletBalance({accountType: 'SPOT', coin: 'BTC'})
+//   .then(result => {
+//     console.log(result)
+//     const test = result.result.list[0].coin;
+//     console.log(test)
+//   })
+//   .catch(err => {
+//     console.error("getAccountInfo error: ", err);
+//   });
+// })
 
-
-bot.hears('test', async (ctx) => {
-  clientAPI.getWalletBalance({accountType: 'SPOT', coin: 'BTC'})
-  .then(result => {
-    console.log(result)
-    const test = result.result.list[0].coin;
-    console.log(test)
-  })
-  .catch(err => {
-    console.error("getAccountInfo error: ", err);
-  });
-})
-
-bot.hears('test2', async (ctx) => {
-  clientTest
-  .getWalletBalance({coin: "USDT"})
-  .then((result) => {
-    console.log(result)
-  })
-  .catch((err) => {
-    console.error("getApiKeyInfo error: ", err);
-  });
-})
+// bot.hears('test2', async (ctx) => {
+//   clientTest
+//   .getWalletBalance({coin: "USDT"})
+//   .then((result) => {
+//     console.log(result)
+//   })
+//   .catch((err) => {
+//     console.error("getApiKeyInfo error: ", err);
+//   });
+// })
 
 
 bot.launch();

@@ -1,11 +1,11 @@
-const { bot, client, users } = require("./config.js");
+const { bot, users } = require("./config.js");
 const inputAPIKeys = require("./inputAPIKeys.js");
 const { mainKeyboard } = require("./keyboards.js")
 
 
 module.exports = async (ctx) => {
   try {
-    await users.findOneAndDelete({ idTelegram: ctx.chat.id });
+    // await users.findOneAndDelete({ idTelegram: ctx.chat.id });
     // Пошук користувача у базі даних
     greeting(ctx);
   } catch (error) {
@@ -19,7 +19,7 @@ bot.action("noAPI", async (ctx) => chooseButtonAPI(ctx, false));
 // перекинути зі старту в ось цю функцію моменти з привітанням
 const greeting = async (ctx) => {
   if (await users.findOne({ idTelegram: ctx.chat.id })) {
-    ctx.reply("Радий знову Вас бачити");
+    ctx.reply("Радий знову Вас бачити", mainKeyboard);
   } else {
     await ctx.reply("Привіт, вітаю тебе у боті CryptoByBitBot!🙂");
     await ctx.reply(
