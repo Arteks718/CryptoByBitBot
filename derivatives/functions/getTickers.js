@@ -7,7 +7,7 @@ module.exports = async (ctx) => {
     status: "tickersDirevatives",
   });
   if (user) {
-    ctx.reply("Введіть символ");
+    ctx.reply("Введіть пару символів, наприклад: BTCUSDT, ethusdt, BiTuSdT");
     const clientByBit = new RestClientV5({
       key: user.apiKey,
       secret: user.apiSecret,
@@ -52,7 +52,7 @@ const infoOutput = (ctx, result) => {
   if (result.price24hPcnt)
     resultString += `<b>Відсоткова ринкова зміна ціна за 24 години</b> ${result.price24hPcnt}%\n`;
   if (result.highPrice24h)
-    resultString += `<b>Найвище ціна за 24 години</b> ${result.highPrice24h}$\n`;
+    resultString += `<b>Найвища ціна за 24 години</b> ${result.highPrice24h}$\n`;
   if (result.lowPrice24h)
     resultString += `<b>Найнижча ціна за 24 години</b> ${result.lowPrice24h}$\n`;
   if (result.volume24h)

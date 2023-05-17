@@ -7,7 +7,7 @@ module.exports = async (ctx) => {
     status: "orderBookDirevatives",
   });
   if (user) {
-    ctx.reply("Введіть символ та за бажання ліміт, за замовчуванням 25");
+    ctx.replyWithHTML("Введіть пару символів, наприклад: BTCUSDT, ethusdt, BiTuSdT.\nВ даному випадку виведеться 25 запитів, або ви можете обрати кількість запитів(не може перевищувати 200), якщо ввести запит за форматом, наприклад: BTCUSDT-30");
     const clientByBit = new RestClientV5({
       key: user.apiKey,
       secret: user.apiSecret,
@@ -18,11 +18,12 @@ module.exports = async (ctx) => {
     bot.on("message", async (ctx) => {
       if (/^[A-Za-z]+-\d+$/g.test(ctx.message.text)) {
         const arrayOfStrings = ctx.message.text.split("-");
-        clientByBit
+        if(arrayOfStrings[1] <= 200) {
+          clientByBit
           .getOrderbook({
             category: "linear",
             symbol: arrayOfStrings[0].toUpperCase(),
-            limit: parseInt(arrayOfStrings[1].toUpperCase()),
+            limit: parseInt(arrayOfStrings[1]),
           })
           .then((result) => {
             if(result.retCode == 0) {
@@ -36,6 +37,8 @@ module.exports = async (ctx) => {
             ctx.reply("❌Помилка");
             console.log(err);
           });
+        } else ctx.reply("❌Помилка ліміта, значення перевищує максимальне. Будь ласка, спробуйте ще раз та введіть меньше значення")
+
       } 
       else if (/^[A-Za-z]/.test(ctx.message.text)) {
         clientByBit
@@ -80,5 +83,5 @@ const infoOutput = (ctx, result) => {
       resultString += `\n\t\t\t<b>Ціна:</b> ${item[0]}$\n\t\t\t<b>Розмір:</b> ${item[1]}\n`;
     })
   }
-  ctx.replyWithHTML(resultString);
+  return ctx.replyWithHTML(resultString);
 }

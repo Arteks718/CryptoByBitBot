@@ -9,7 +9,7 @@ module.exports = async (ctx) => {
     status: "walletBalanceDirevatives",
   });
   if (user) {
-    ctx.reply("Введіть символ або Усі");
+    ctx.reply("Введіть символ або 'Усі' для виведення балансу усіх монет");
     const clientByBit = new RestClientV5({
       key: user.apiKey,
       secret: user.apiSecret,
@@ -24,8 +24,11 @@ module.exports = async (ctx) => {
             coin: ctx.message.text.toUpperCase(),
           })
           .then((result) => {
-            ctx.reply("✅Операція успішна✅");
-            specificCoin(ctx, result.result.list[0].coin[0]);
+            if(result.retCode == 0) {
+              ctx.reply("✅Операція успішна✅");
+              specificCoin(ctx, result.result.list[0].coin[0]);
+            } else throw new Error(result.retCode);
+            
           })
           .catch((err) => {
             console.log(err);
@@ -45,7 +48,7 @@ module.exports = async (ctx) => {
     });
   } 
   else 
-    ctx.reply("❌Помилка, функція не обрана❌")
+    ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
 };
 
 const specificCoin = (ctx, result) => {
@@ -71,7 +74,7 @@ const specificCoin = (ctx, result) => {
   if (result.totalPositionIM && result.totalPositionIM != 0)
     resultString += `<b>Сума початкової маржі всіх позицій + Попередньо зайнята ліквідаційна комісія:</b> ${result.totalPositionIM}\n`;
   if (result.totalPositionMM && result.totalPositionMM != 0)
-    resultString += `<b>Сума маржі обслуговування для всіх позицій</b> \n`;
+    resultString += `<b>Сума маржі обслуговування для всіх позицій:</b> ${result.totalPositionMM}\n`;
   if (result.unrealisedPnl && result.unrealisedPnl != 0)
     resultString += `<b>Нереалізовані прибутки та збитки:</b> ${result.unrealisedPnl}\n`;
   if (result.cumRealisedPnl && result.cumRealisedPnl != 0)

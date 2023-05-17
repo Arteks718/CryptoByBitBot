@@ -2,12 +2,15 @@ const { bot, users } = require("../../config");
 const { RestClientV5 } = require("bybit-api");
 
 module.exports = async (ctx) => {
+  console.log("test")
   const user = await users.findOne({
     idTelegram: ctx.chat.id,
+    chooseButtonAPI: true,
+    apiKey: { $exists: true },
     status: "getOpenOrdersDirevatives",
   });
   if (user) {
-    ctx.reply("Введіть символ або номер замовлення")
+    ctx.reply("Введіть символ за яким буде пошук активних замовлень, наприклад: BTCUSDT, ethusdt, BitUsDt")
     const clientByBit = new RestClientV5({
       key: user.apiKey,
       secret: user.apiSecret,
@@ -16,22 +19,22 @@ module.exports = async (ctx) => {
     });
 
     bot.on("message", async (ctx) => {
-      if(/^[a-zA-Z0-9]{8}-(?:[a-zA-Z0-9]{4}-){3}[a-zA-Z0-9]{12}$/.test(ctx.message.text)){
-        console.log("first")
-        clientByBit.getActiveOrders({category: 'linear', orderId: ctx.message.text},)
-          .then(result => {
-            if(result.retCode == 0 ){
-              ctx.reply("✅Операція успішна✅");
-              infoOutput(ctx, result.result)
-            } 
-            else 
-              throw new Error(result.retMsg);
-          })
-          .catch(error => {
-            console.log(error)
-          })
-      }
-      else if (/^[A-Za-z]+/) {
+      // if(/^[a-zA-Z0-9]{8}-(?:[a-zA-Z0-9]{4}-){3}[a-zA-Z0-9]{12}$/.test(ctx.message.text)){
+      //   console.log("first")
+      //   clientByBit.getActiveOrders({category: 'linear', orderId: ctx.message.text},)
+      //     .then(result => {
+      //       if(result.retCode == 0 ){
+      //         ctx.reply("✅Операція успішна✅");
+      //         infoOutput(ctx, result.result)
+      //       } 
+      //       else 
+      //         throw new Error(result.retMsg);
+      //     })
+      //     .catch(error => {
+      //       console.log(error)
+      //     })
+      // }
+      if (/^[A-Za-z]+/.test(ctx.message.text)) {
         clientByBit.getActiveOrders({category: 'linear', symbol: ctx.message.text.toUpperCase()}, )
         .then(result => {
           if(result.retCode == 0){
@@ -48,7 +51,8 @@ module.exports = async (ctx) => {
       }
 
     })
-  }
+  }else
+  ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
 }
 
 const infoOutput = (ctx, result) => {
@@ -67,6 +71,8 @@ const infoOutput = (ctx, result) => {
       (result.orderType == 'Limit') ? resultString += `лімітний\n` : resultString += `ринковий\п`
   if(result.orderId)
     resultString += `<b>Номер замовлення:</b> ${result.orderId}\n`
+  if(result.orderLinkId)
+    resultString += `<b>Налаштований користувачем ідентифікатор замовлення:</b> ${result.orderLinkId}`
   if(result.stopOrderType)
     resultString += `<b>Тип зупинки замовлення:</b> ${result.stopOrderType}\n`;
   if(result.orderStatus)
