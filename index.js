@@ -1,17 +1,22 @@
-// const { Scenes, session } = require('telegraf')
+const { Scenes, session } = require('telegraf')
 const { bot, client } = require('./config.js');
+const { authScene } = require('./scenes/auth.js');
+const { testScene } = require('./scenes/test.js');
+
+bot.use(session());
+
+const stage = new Scenes.Stage([authScene, testScene]);
+
+bot.use(stage.middleware());
+
 const getInfoText = require("./info.js");
 const startBot = require("./auth.js");
 const direvativesMarket = require("./derivatives/derivativesMarket.js")
 const { calldirectivesMarket, callSpotMarket, callMainMenu } = require('./mainMenu.js');
 
-// const stage = new Scenes.Stage([auth]);
-
 bot.start(async (ctx) => {
   await client.connect();
   console.log("Connect completed");
-  // bot.use(session());
-  // bot.use(stage.middleware());
   startBot(ctx);
 })
 

@@ -5,8 +5,6 @@ const { message } = require("telegraf/filters");
 
 
 module.exports = async (ctx, statusUser) => {
-// const auth = new Scenes.BaseScene("auth");
-
   ctx.reply("Введіть API Key та API Secret Key у форматі APIKEY:APISECRET")
     if (await users.findOne({ idTelegram: ctx.chat.id, status: "inputAPIKey" })) {
       try {

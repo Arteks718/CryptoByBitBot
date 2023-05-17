@@ -54,7 +54,10 @@ const chooseButtonAPI = async (ctx, button) => {
         { idTelegram: ctx.chat.id },
         { $set: { status: "inputAPIKey" , chooseButtonAPI: button}}
       );
-      await inputAPIKeys(ctx, "mainMenu");
+
+      ctx.scene.enter("auth")
+
+      // await inputAPIKeys(ctx, "mainMenu");
     } else{
       ctx.reply("Зрозумів, тоді в будь який інший момент у команді /settings ви можете ввести свої API ");
       users.updateOne(
