@@ -6,6 +6,7 @@ const getOrderBook = require("./functions/getOrderBook");
 const getOpenOrders = require("./functions/getOpenOrders");
 const cancelOrder = require("./functions/cancelOrder");
 const cancelAllOrders = require("./functions/cancelAllOrders");
+const placeOrder = require("./functions/placeOrder");
 
 module.exports = () => {
   bot.hears("Get Wallet Balance", (ctx) => {
@@ -48,7 +49,7 @@ module.exports = () => {
     users.updateOne(
       { idTelegram: ctx.chat.id },
       { $set: { status: 'placeOrderDirevatives' } } );
-    // getKline(ctx);
+    placeOrder(ctx);
   })
   bot.hears("Cancel Order", (ctx) => {
     users.updateOne(

@@ -7,7 +7,7 @@ module.exports = async (ctx) => {
     status: "klineDirevatives",
   });
   if(user) {
-    ctx.replyWithHTML("Введіть параметри за наступним виглядом:\n<i>symbol-interval</i>\nабо\n<i>symbol-interval-limit</i>\n\n<b>symbol</b> - це символ пошуму(наприклад BTCUSD, ethusdt)\n<b>interval</b> - це інтервал між запитами, допускаються лише такі параметри: 1 5 15 30 60 120 240 360 720 D M W\n<b>limit</b> - це кількість запитів для отримання, в першому випадку він становить 20, в другому його можна ввести(не може бути більше 100)");
+    ctx.replyWithHTML("Введіть параметри за наступним виглядом:\n<i>symbol-interval</i>\nабо\n<i>symbol-interval-limit</i>\n\n<b>symbol</b> - це символ пошуку(наприклад BTCUSD, ethusdt)\n<b>interval</b> - це інтервал між запитами, допускаються лише такі параметри: 1 5 15 30 60 120 240 360 720 D M W\n<b>limit</b> - це кількість запитів для отримання, в першому випадку він становить 20, в другому його можна ввести(не може бути більше 100)");
     const clientByBit = new RestClientV5({
       key: user.apiKey,
       secret: user.apiSecret,
