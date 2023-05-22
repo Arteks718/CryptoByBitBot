@@ -1,5 +1,6 @@
 const { bot, users } = require("../../config");
 const { RestClientV5 } = require("bybit-api");
+const { directivesAPI, directivesWithoutAPI } = require("../../keyboards")
 
 module.exports = async (ctx) => {
   const user = await users.findOne({
@@ -14,7 +15,6 @@ module.exports = async (ctx) => {
       testnet: false,
       recv_window: 5000,
     });
-
     bot.on("message", async (ctx) => {
       if(/^[A-Za-z]+-[A-Z\d]+-\d+$/g.test(ctx.message.text)) {
         const arrayOfStrings = ctx.message.text.split("-");
@@ -28,11 +28,16 @@ module.exports = async (ctx) => {
               interval: String(interval.toUpperCase()),
               limit: arrayOfStrings[2],
             })
-            .then((result) => {
+            .then(async (result) => {
               if(result.retCode == 0) {
-                ctx.reply("✅Операція успішна✅");
+                let keyboard;
+                (user.chooseButtonAPI == true) ? keyboard = directivesAPI : keyboard = directivesWithoutAPI;
+                await users.updateOne(
+                  { idTelegram: ctx.chat.id },
+                  { $set: { status: "directivesMarket"}}  
+                )
+                ctx.reply("✅Операція виведення списку клинів успішна✅", keyboard);
                 infoOutput(ctx, result.result);
-                console.log(result)
               }
               else
                 throw new Error(result.retCode);
@@ -54,11 +59,16 @@ module.exports = async (ctx) => {
               interval: String(interval.toUpperCase()),
               limit: 20,
             })
-            .then((result) => {
+            .then(async (result) => {
               if(result.retCode == 0) {
-                ctx.reply("✅Операція успішна✅");
+                let keyboard;
+                (user.chooseButtonAPI == true) ? keyboard = directivesAPI : keyboard = directivesWithoutAPI;
+                await users.updateOne(
+                  { idTelegram: ctx.chat.id },
+                  { $set: { status: "directivesMarket"}}  
+                )
+                ctx.reply("✅Операція успішна✅", keyboard);
                 infoOutput(ctx, result.result);
-                console.log(result)
               }
               else
                 throw new Error(result.retCode);
@@ -71,8 +81,9 @@ module.exports = async (ctx) => {
       }
 
     })
-  }else
-      ctx.reply("❌Помилка, функція не обрана❌")
+  }
+  else
+    ctx.reply("❌Помилка, функція не обрана❌")
 }
 
 const infoOutput = (ctx, result) => {

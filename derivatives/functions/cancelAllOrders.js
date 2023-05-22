@@ -1,5 +1,7 @@
 const { bot, users } = require("../../config");
 const { RestClientV5 } = require("bybit-api");
+const { directivesAPI } = require("../../keyboards")
+
 
 module.exports = async (ctx) => {
   const user = await users.findOne({
@@ -21,7 +23,11 @@ module.exports = async (ctx) => {
       clientByBit.cancelAllOrders({category: 'linear', symbol: ctx.message.text.toUpperCase()})
         .then(async result => {
           if(result.retCode == 0) {
-            await ctx.reply("✅Операція видалення усіх замовлень успішна✅");
+            await users.updateOne(
+              { idTelegram: ctx.chat.id },
+              { $set: { status: "directivesMarket"}}  
+            )
+            await ctx.reply("✅Операція видалення усіх замовлень успішна✅", directivesAPI);
             let listString = `Список усіх видаленних замовлень:`;
             result.result.list.forEach((order) => {
               if(order.orderId)
@@ -30,6 +36,7 @@ module.exports = async (ctx) => {
                 listString += `\nКористувацький ідентифікатор замовлення: ${order.orderLinkId}`
             })
             await ctx.replyWithHTML(listString);
+
           } else
               throw new Error(result.retCode);
         })

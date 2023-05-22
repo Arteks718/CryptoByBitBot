@@ -1,5 +1,6 @@
 const { bot, users } = require("../../config");
 const { RestClientV5 } = require("bybit-api");
+const { directivesAPI } = require("../../keyboards")
 
 module.exports = async (ctx) => {
   console.log("test")
@@ -36,23 +37,32 @@ module.exports = async (ctx) => {
       // }
       if (/^[A-Za-z]+/.test(ctx.message.text)) {
         clientByBit.getActiveOrders({category: 'linear', symbol: ctx.message.text.toUpperCase()}, )
-        .then(result => {
+        .then(async result => {
           if(result.retCode == 0){
             if(result.result.list.length != 0){
-              ctx.reply("✅Операція успішна✅");
-              console.log(result.result)
+              await users.updateOne(
+                { idTelegram: ctx.chat.id },
+                { $set: { status: "directivesMarket"}}  
+              )
+              ctx.reply("✅Операція успішна✅", directivesAPI);
               result.result.list.forEach(order => infoOutput(ctx, order))
-            } else ctx.reply("Немає активних замовлень на дану криптовалюту")
-          }
+            } 
+            else 
+              ctx.reply("Немає активних замовлень на дану криптовалюту")
+          } 
+          else 
+            throw new Error(result.retMsg);
         })
         .catch(error => {
+          ctx.reply("❌Помилка виведення активних замовлень");
           console.log(error)
         })
       }
 
     })
-  }else
-  ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
+  }
+  else
+    ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
 }
 
 const infoOutput = (ctx, result) => {

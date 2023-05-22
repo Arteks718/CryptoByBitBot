@@ -1,5 +1,6 @@
 const { bot, users } = require("../../config.js");
 const { RestClientV5 } = require("bybit-api");
+const { directivesAPI } = require("../../keyboards")
 
 module.exports = async (ctx) => {
   const user = await users.findOne({
@@ -23,12 +24,17 @@ module.exports = async (ctx) => {
             accountType: "CONTRACT",
             coin: ctx.message.text.toUpperCase(),
           })
-          .then((result) => {
+          .then(async (result) => {
             if(result.retCode == 0) {
-              ctx.reply("✅Операція успішна✅");
+              await users.updateOne(
+                { idTelegram: ctx.chat.id },
+                { $set: { status: "directivesMarket"}}  
+              )
+              ctx.reply("✅Операція отримання балансу успішна✅", directivesAPI);
               specificCoin(ctx, result.result.list[0].coin[0]);
-            } else throw new Error(result.retCode);
-            
+            } 
+            else 
+              throw new Error(result.retCode);
           })
           .catch((err) => {
             console.log(err);
