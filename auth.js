@@ -32,6 +32,7 @@ const greeting = async (ctx) => {
     await users.insertOne({
       idTelegram: ctx.chat.id,
       status: "buttonSelection",
+      isSubscribeNews: false
     });
 
     setTimeout(async () => await ctx.replyWithHTML("Чи бажаєте ввести ключі?", {
@@ -54,7 +55,8 @@ const chooseButtonAPI = async (ctx, button) => {
         { idTelegram: ctx.chat.id },
         { $set: { status: "inputAPIKey" , chooseButtonAPI: button}}
       );
-      await inputAPIKeys(ctx, "mainMenu");
+      ctx.scene.enter("authScene")
+      // await inputAPIKeys(ctx, "mainMenu", mainKeyboard);
     } else{
       ctx.reply("Зрозумів, тоді в будь який інший момент у команді /settings ви можете ввести свої API ");
       users.updateOne(

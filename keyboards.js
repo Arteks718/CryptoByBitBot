@@ -5,41 +5,49 @@ const mainKeyboard = Markup.keyboard([
   "Ринок Споту",
 ]).oneTime();
 
-const settingKeyboard = Markup.keyboard([
-  "Змінити API ключі",
-  "Підписатись на оновлення",
-]).resize();
-
 const directivesAPI = Markup.keyboard([
   ["Get Tickers", "Get OrderBook", "Get Kline"],
   ["Amend Order", "Place Order", "Cancel Order", "Cancel All Orders"],
   ["Get Open Orders", "Get Orders History", "Get Wallet Balance"],
   ["Повернутись на головну"],
-]).resize().oneTime();
+]).resize();
 
 const directivesWithoutAPI = Markup.keyboard([
   ["Get Tickers", "Get OrderBook", "Get Kline"],
   ["Повернутись на головну"],
-]).resize().oneTime();
+]).resize();
 
 const spotAPI = Markup.keyboard([
   ["Get Tickers", "Get OrderBook", "Get Kline"],
-  ["Amend Order", "Place Order", "Cancel Order", "Cancel All Orders"],
+  ["Place Order", "Cancel Order", "Cancel All Orders"],
   ["Get Open Orders", "Get Orders History", "Get Wallet Balance"],
   ["Повернутись на головну"],
-]).resize().oneTime();
+]).resize();
 
 const spotWithoutAPI = Markup.keyboard([
   ["Get Tickers", "Get OrderBook", "Get Kline"],
   ["Повернутись на головну"],
-]).resize().oneTime();
+]).resize();
+
+const noSubscribe = Markup.keyboard([
+  "Змінити API ключі",
+  "Підписатись на оновлення",
+  "Повернутись на головну"
+]).resize();
+
+const subscribe = Markup.keyboard([
+  "Змінити API ключі",
+  "Відписатись від оновлень",
+  "Повернутись на головну"
+]).resize();
 
 
 module.exports = {
   mainKeyboard,
-  settingKeyboard,
   directivesAPI,
   directivesWithoutAPI,
   spotAPI,
-  spotWithoutAPI
+  spotWithoutAPI,
+  noSubscribe,
+  subscribe
 };
