@@ -1,5 +1,6 @@
 const { bot, users } = require("../../config");
 const { RestClientV5 } = require("bybit-api");
+const { directivesAPI } = require("../../keyboards")
 
 module.exports = async (ctx) => {
   const user = await users.findOne({
@@ -9,7 +10,12 @@ module.exports = async (ctx) => {
     status: "cancelOrderDirevatives",
   });
   if(user) {
-    ctx.reply("Введіть символ та номер ордера (отримати його за командою Get Open Orders)");
+    ctx.replyWithHTML(`Введіть запит за наступим виклядом:
+      \n<i>symbol:orderId</i>
+      \n\nsymbol - це символ пошуку(наприклад BTCUSD, ethusdt)
+      \norderId - це ідентифікатор замовлення, отримати його можна за командою "Get Open Orders"
+      \nОсь приклад введення запиту:
+      \n<i>BTCUSDT:bfd222dd-d17a-4a9e-90f3-7b081dfee319</i>`);
     const clientByBit = new RestClientV5({
       key: user.apiKey,
       secret: user.apiSecret,
@@ -22,11 +28,16 @@ module.exports = async (ctx) => {
       const symbol = arrayOfStrings[0];
       const orderId = arrayOfStrings[1];
       clientByBit.cancelOrder({ category: 'linear', symbol: symbol.toUpperCase(), orderId: orderId })
-        .then(result => {
+        .then(async result => {
           if(result.retCode == 0) {
-            ctx.reply("✅Операція видалення замовлення успішна✅");
-          } else 
-              throw new Error(result.retCode);
+            await users.updateOne(
+              { idTelegram: ctx.chat.id },
+              { $set: { status: "directivesMarket"}}  
+            )
+            ctx.reply("✅Операція видалення замовлення успішна✅", directivesAPI);
+          } 
+          else 
+            throw new Error(result.retCode);
         })
         .catch((err) => {
           ctx.reply("❌Помилка видалення замовлення");

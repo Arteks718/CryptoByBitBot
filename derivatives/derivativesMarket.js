@@ -1,3 +1,4 @@
+const { Scenes } = require("telegraf");
 const {bot, users } = require("../config.js");
 const getWalletBalance = require("./functions/getWalletBalance");
 const getTickers = require("./functions/getTickers");
@@ -7,67 +8,108 @@ const getOpenOrders = require("./functions/getOpenOrders");
 const cancelOrder = require("./functions/cancelOrder");
 const cancelAllOrders = require("./functions/cancelAllOrders");
 const placeOrder = require("./functions/placeOrder");
+const amendOrder = require("./functions/amendOrder");
+const getOrdersHistory = require("./functions/getOrdersHistory");
 
-module.exports = () => {
-  bot.hears("Get Wallet Balance", (ctx) => {
-    users.updateOne(
+// const hearsGetWalletBalanceDirevatives = new Scenes.BaseScene('hearsGetWalletBalanceDirevatives');
+// const hearsGetTickersDirevatives = new Scenes.BaseScene('hearsGetTickersDirevatives');
+// const hearsAmendOrderDirevatives = new Scenes.BaseScene('hearsAmendOrderDirevatives')
+// const hearsPlaceOrderDirevatives = new Scenes.BaseScene('hearsPlaceOrderDirevatives')
+
+// hearsGetWalletBalanceDirevatives.hears("Get Wallet Balance", async ctx => {
+//   await users.updateOne(
+//   { idTelegram: ctx.chat.id },
+//   { $set: { status: 'walletBalanceDirevatives' } } );
+//   ctx.reply("Test wallet order")
+// // ctx.scene.enter("amendOrderDirevatives")
+// })
+
+// hearsGetTickersDirevatives.hears("Get Tickers", async ctx => {
+//   await users.updateOne(
+//   { idTelegram: ctx.chat.id },
+//   { $set: { status: 'tickersDirevatives' } } );
+//   ctx.reply("Test tickers order")
+// // ctx.scene.enter("amendOrderDirevatives")
+// })
+
+// hearsAmendOrderDirevatives.hears("Amend Order", async ctx => {
+//   await users.updateOne(
+//   { idTelegram: ctx.chat.id },
+//   { $set: { status: 'amendOrderDirevatives' } } );
+//   ctx.reply("Test amend order")
+// ctx.scene.enter("amendOrderDirevatives")
+// })
+
+// hearsPlaceOrderDirevatives.hears("Place Order", async ctx => {
+//   await users.updateOne(
+//   { idTelegram: ctx.chat.id },
+//   { $set: { status: 'placeOrderDirevatives' } } );
+//   ctx.reply("Test place order")
+//   // ctx.scene.enter("amendOrderDirevatives")
+// })
+
+// module.exports = { hearsGetWalletBalanceDirevatives, hearsGetTickersDirevatives, hearsPlaceOrderDirevatives, hearsAmendOrderDirevatives}
+
+
+module.exports = async () => {
+  bot.hears("Get Wallet Balance", async (ctx) => {
+    await users.updateOne(
       { idTelegram: ctx.chat.id },
       { $set: { status: 'walletBalanceDirevatives' } } );
-    getWalletBalance(ctx);
+    await getWalletBalance(ctx);
   });
-  bot.hears("Get Tickers", (ctx) => {
-    users.updateOne(
+  bot.hears("Get Tickers", async (ctx) => {
+    await users.updateOne(
       { idTelegram: ctx.chat.id },
       { $set: { status: 'tickersDirevatives' } } );
-    getTickers(ctx);
+    await getTickers(ctx);
   })
-  bot.hears("Get OrderBook", (ctx) => {
-    users.updateOne(
+  bot.hears("Get OrderBook", async (ctx) => {
+    await users.updateOne(
       { idTelegram: ctx.chat.id },
       { $set: { status: 'orderBookDirevatives' } } );
-    getOrderBook(ctx);
+    await getOrderBook(ctx);
   })
-  bot.hears("Get Kline", (ctx) => {
-    users.updateOne(
+  bot.hears("Get Kline", async (ctx) => {
+    await users.updateOne(
       { idTelegram: ctx.chat.id },
       { $set: { status: 'klineDirevatives' } } );
-    getKline(ctx);
+    await getKline(ctx);
   })
-  bot.hears("Get Open Orders", (ctx) => {
-    users.updateOne(
+  bot.hears("Get Open Orders", async (ctx) => {
+    await users.updateOne(
       { idTelegram: ctx.chat.id },
       { $set: { status: 'getOpenOrdersDirevatives' } } );
-    getOpenOrders(ctx);
+    await getOpenOrders(ctx);
   })
-  bot.hears("Get Orders History", (ctx) => {
-    users.updateOne(
+  bot.hears("Get Orders History", async (ctx) => {
+    await users.updateOne(
       { idTelegram: ctx.chat.id },
       { $set: { status: 'getOrdersHistoryDirevatives' } } );
-    // getKline(ctx);
+    await getOrdersHistory(ctx);
   })
-  bot.hears("Place Order", (ctx) => {
-    users.updateOne(
+  bot.hears("Place Order", async (ctx) => {
+    await users.updateOne(
       { idTelegram: ctx.chat.id },
       { $set: { status: 'placeOrderDirevatives' } } );
-    placeOrder(ctx);
+    await placeOrder(ctx);
   })
-  bot.hears("Cancel Order", (ctx) => {
-    users.updateOne(
-      { idTelegram: ctx.chat.id },
+  bot.hears("Cancel Order", async (ctx) => {
+    await users.updateOne(
+    { idTelegram: ctx.chat.id },
       { $set: { status: 'cancelOrderDirevatives' } } );
-    cancelOrder(ctx);
+    await cancelOrder(ctx);
   })
-  bot.hears("Cancel All Orders", (ctx) => {
-    users.updateOne(
+  bot.hears("Cancel All Orders", async (ctx) => {
+    await users.updateOne(
       { idTelegram: ctx.chat.id },
       { $set: { status: 'cancelAllOrdersDirevatives' } } );
-    cancelAllOrders(ctx);
+    await cancelAllOrders(ctx);
   })
-  bot.hears("Amend Order", (ctx) => {
-    users.updateOne(
+  bot.hears("Amend Order", async (ctx) => {
+    await users.updateOne(
       { idTelegram: ctx.chat.id },
       { $set: { status: 'amendOrderDirevatives' } } );
-    // getKline(ctx);
+    await ctx.scene.enter("amendOrderDirevatives")
   })
 }
-

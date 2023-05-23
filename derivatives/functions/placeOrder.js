@@ -1,5 +1,6 @@
 const { bot, users } = require("../../config");
 const { RestClientV5 } = require("bybit-api");
+const { directivesAPI } = require("../../keyboards")
 
 module.exports = async (ctx) => {
   const user = await users.findOne({
@@ -9,18 +10,7 @@ module.exports = async (ctx) => {
     status: "placeOrderDirevatives",
   });
   if(user) {
-    ctx.replyWithHTML(`Введіть запит за такими параметрами:\n
-      <i>symbol:side:orderType:qty:price:takeProfit:stopLoss</i>\n\n
-      <b>symbol</b> (обов'язковий) - це символ криптовалюти за яким буде додаватись нове замовлення (наприклад BTCUSD, ethusdt)\n
-      <b>side</b> (обов'язковий) - це сторона замовлення, вона може бути лише Buy(купівля) або Sell(продаж)\n
-      <b>orderType</b> (обов'язковий) - це тип замовлення, він може бути лише Market(ринковий) або Limit(лімітний). Якщо обираєте Market, тоді наступні поля як takeProfit та stopLoss\n
-      <b>qty</b> (обов'язковий) - кількість замовлення\n
-      <b>price</b> - ціна замовлення\n
-      <b>takeProfit</b> - ціна продажу замовлення\n
-      <b>stopLoss</b> - ціна продажу замовлення\n\n
-      Поля price, takeProfit та stopLoss є не обов'язковими, тому якщо не бажаєте їх вводити, будь ласка, заповніть значенням 0\n
-      Ось приклад введення запиту\n\n
-      <i>BTCUSDT:Buy:Limit:0.001:28000:28200:27800</i>\n
+    ctx.replyWithHTML(`Введіть запит за такими параметрами:\n\n<i>symbol:side:orderType:qty:price:takeProfit:stopLoss</i>\n\n<b>symbol</b> (обов'язковий) - це символ криптовалюти за яким буде додаватись нове замовлення (наприклад BTCUSD, ethusdt)\n<b>side</b> (обов'язковий) - це сторона замовлення, вона може бути лише Buy(купівля) або Sell(продаж)\n<b>orderType</b> (обов'язковий) - це тип замовлення, він може бути лише Market(ринковий) або Limit(лімітний). Якщо обираєте Market, тоді наступні поля як takeProfit та stopLoss\n<b>qty</b> (обов'язковий) - кількість замовлення\n<b>price</b> - ціна замовлення\n<b>takeProfit</b> - ціна продажу замовлення\n<b>stopLoss</b> - ціна продажу замовлення\n\nПоля price, takeProfit та stopLoss є не обов'язковими, тому якщо не якийсь з них не бажаєте вводити, будь ласка, заповніть значенням <b>0</b>\n<b>Ось приклад введення запиту</b>\n\n<i>BTCUSDT:Buy:Limit:0.001:28000:28200:27800</i>
       `)
     const clientByBit = new RestClientV5({
       key: user.apiKey,
@@ -33,10 +23,12 @@ module.exports = async (ctx) => {
       const arrayOfStrings = ctx.message.text.split(":");
       if(arrayOfStrings.length == 7) {
         const symbol = arrayOfStrings[0].toUpperCase();
-        const side = arrayOfStrings[1];
-        (side == "buy") ? side.replace('buy', 'Buy') : side.replace('sell','Sell');
-        const orderType = arrayOfStrings[2];
-        (orderType == "market")? orderType.replace('market', 'Market') : orderType.replace('limit', 'Limit');
+        let side = arrayOfStrings[1].toLowerCase();
+        if(side == 'buy') side = side.replace('buy', 'Buy');
+        else if(side == 'sell') side = side.replace('sell', 'Sell');
+        let orderType = arrayOfStrings[2].toLowerCase();
+        if(orderType == 'limit') orderType = orderType.replace('limit', 'Limit');
+        else if(orderType == 'market') orderType = orderType.replace('market', 'Market');
         const qty = arrayOfStrings[3];
         const placeOrder = {
           category: 'linear',
@@ -55,7 +47,11 @@ module.exports = async (ctx) => {
         clientByBit.submitOrder(placeOrder)
           .then(async result => {
             if(result.retCode == 0){
-              await ctx.reply("✅Операція додавання замовлення успішна✅");
+              await users.updateOne(
+                { idTelegram: ctx.chat.id },
+                { $set: { status: "directivesMarket"}}  
+              )
+              await ctx.reply("✅Операція додавання замовлення успішна✅", directivesAPI);
               await ctx.replyWithHTML(`<b>Ідентифікатор замовлення:</b> ${result.result.orderId}`)
             } 
             else 
@@ -69,5 +65,7 @@ module.exports = async (ctx) => {
       else
         ctx.reply("❌Помилка, неправильно введені параметри. Будь ласка, спробуйте ще раз.") 
     })
-  }else ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
+  }
+  else
+    ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
 }

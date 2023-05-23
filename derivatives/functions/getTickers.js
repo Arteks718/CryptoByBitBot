@@ -1,5 +1,6 @@
 const { bot, users } = require("../../config");
 const { RestClientV5 } = require("bybit-api");
+const { directivesAPI, directivesWithoutAPI } = require("../../keyboards")
 
 module.exports = async (ctx) => {
   const user = await users.findOne({
@@ -21,10 +22,16 @@ module.exports = async (ctx) => {
           category: "linear",
           symbol: ctx.message.text.toUpperCase(),
         })
-        .then((result) => {
+        .then(async (result) => {
           // console.log(result.result.list[0])
           if(result.retCode == 0) {
-            ctx.reply("✅Операція успішна✅");
+            let keyboard;
+            (user.chooseButtonAPI == true) ? keyboard = directivesAPI : keyboard = directivesWithoutAPI;
+            await users.updateOne(
+              { idTelegram: ctx.chat.id },
+              { $set: { status: "directivesMarket"}}  
+            )
+            ctx.reply("✅Операція виведення даних про криптовалюту успішна✅", keyboard);
             infoOutput(ctx, result.result.list[0]);
           } else{
             throw new Error(result.retCode);

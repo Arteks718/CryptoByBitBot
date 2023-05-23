@@ -1,5 +1,6 @@
 const { bot, users } = require("../../config");
 const { RestClientV5 } = require("bybit-api");
+const { directivesAPI, directivesWithoutAPI } = require("../../keyboards")
 
 module.exports = async (ctx) => {
   const user = await users.findOne({
@@ -7,7 +8,7 @@ module.exports = async (ctx) => {
     status: "orderBookDirevatives",
   });
   if (user) {
-    ctx.replyWithHTML("Введіть пару символів, наприклад: BTCUSDT, ethusdt, BiTuSdT.\nВ даному випадку виведеться 25 запитів, або ви можете обрати кількість запитів(не може перевищувати 200), якщо ввести запит за форматом, наприклад: BTCUSDT-30");
+    ctx.replyWithHTML("Введіть пару символів, наприклад: BTCUSDT, ethusdt, BiTuSdT.\nЗа замовчуванням виведеться <b>25 запитів</b>, або ви можете обрати кількість запитів<b>(не може перевищувати 200)</b>, якщо ввести запит за форматом:\n<i>symbol-limit</i>\nНаприклад: BTCUSDT-30");
     const clientByBit = new RestClientV5({
       key: user.apiKey,
       secret: user.apiSecret,
@@ -25,9 +26,15 @@ module.exports = async (ctx) => {
             symbol: arrayOfStrings[0].toUpperCase(),
             limit: parseInt(arrayOfStrings[1]),
           })
-          .then((result) => {
+          .then(async (result) => {
             if(result.retCode == 0) {
-              ctx.reply("✅Операція успішна✅");
+              let keyboard;
+              (user.chooseButtonAPI == true) ? keyboard = directivesAPI : keyboard = directivesWithoutAPI;
+              await users.updateOne(
+                { idTelegram: ctx.chat.id },
+                { $set: { status: "directivesMarket"}}  
+              )
+              ctx.reply("✅Операція виведення книги замовлень успішна✅", keyboard);
               infoOutput(ctx, result.result);
             } 
             else 
@@ -37,7 +44,7 @@ module.exports = async (ctx) => {
             ctx.reply("❌Помилка");
             console.log(err);
           });
-        } else ctx.reply("❌Помилка ліміта, значення перевищує максимальне. Будь ласка, спробуйте ще раз та введіть меньше значення")
+        } else ctx.reply("❌Помилка ліміта, значення перевищує максимальне. Будь ласка, спробуйте ще раз та введіть значення менше")
 
       } 
       else if (/^[A-Za-z]/.test(ctx.message.text)) {
@@ -46,8 +53,14 @@ module.exports = async (ctx) => {
             category: "linear",
             symbol: ctx.message.text.toUpperCase(),
           })
-          .then((result) => {
+          .then(async (result) => {
             if(result.retCode == 0) {
+              let keyboard;
+              (user.chooseButtonAPI == true) ? keyboard = directivesAPI : keyboard = directivesWithoutAPI;
+              await users.updateOne(
+                { idTelegram: ctx.chat.id },
+                { $set: { status: "directivesMarket"}}  
+              )
               ctx.reply("✅Операція успішна✅");
               infoOutput(ctx, result.result);
             }
