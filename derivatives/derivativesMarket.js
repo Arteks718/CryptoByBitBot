@@ -62,7 +62,7 @@ module.exports = async () => {
     await users.updateOne(
       { idTelegram: ctx.chat.id },
       { $set: { status: 'tickersDirevatives' } } );
-    await getTickers(ctx);
+    await ctx.scene.enter("getTickersDirevatives")
   })
   bot.hears("Get OrderBook", async (ctx) => {
     await users.updateOne(

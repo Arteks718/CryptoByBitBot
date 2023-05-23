@@ -3,6 +3,7 @@ const { bot, client, users } = require('./config.js')
 const { authScene } = require('./inputAPIKeys.js') 
 const { changeAPI } = require('./settings/changeAPIKeys.js')
 const { amendOrderScene } = require('./derivatives/functions/amendOrder.js');
+const { getTickersDirevativesScene } = require('./derivatives/functions/getTickers.js')
 // const { hearsGetWalletBalanceDirevatives, hearsGetTickersDirevatives, hearsPlaceOrderDirevatives, hearsAmendOrderDirevatives } = require('./derivatives/derivativesMarket.js')
 
 
@@ -13,7 +14,7 @@ const direvativesMarket = require("./derivatives/derivativesMarket.js")
 const { calldirectivesMarket, callSpotMarket, callMainMenu } = require('./mainMenu.js');
 
 bot.use(session())
-const stage = new Scenes.Stage([authScene, changeAPI, amendOrderScene]);
+const stage = new Scenes.Stage([authScene, changeAPI, amendOrderScene, getTickersDirevativesScene]);
 bot.use(stage.middleware())
 
 bot.start(async (ctx) => {
