@@ -6,6 +6,7 @@ const { changeAPI } = require('./settings/changeAPIKeys.js')
 const { settingsScene } = require("./settings/settings.js");
 const { infoScene } = require("./info.js");
 
+const { direvativesMarketScene } = require("./derivatives/derivativesMarket.js")
 const { amendOrderDirevativesScene } = require('./derivatives/functions/amendOrder.js');
 const { getTickersDirevativesScene } = require('./derivatives/functions/getTickers.js')
 const { cancelAllOrdersDirevativesScene } = require('./derivatives/functions/cancelAllOrders.js')
@@ -20,13 +21,12 @@ const { getWalletBalanceDirevativesScene } = require('./derivatives/functions/ge
 // const { hearsGetWalletBalanceDirevatives, hearsGetTickersDirevatives, hearsPlaceOrderDirevatives, hearsAmendOrderDirevatives } = require('./derivatives/derivativesMarket.js')
 
 bot.use(session())
-const stage = new Scenes.Stage([authScene, changeAPI, settingsScene, infoScene, amendOrderDirevativesScene, getTickersDirevativesScene, cancelAllOrdersDirevativesScene, cancelOrderDirevativesScene, getKlineDirevativesScene, getOrderBookDirevativesScene, placeOrderDirevativesScene, getOpenOrdersDirevativesScene, getOrdersHistoryScene, getWalletBalanceDirevativesScene]);
+const stage = new Scenes.Stage([authScene, changeAPI, settingsScene, infoScene, direvativesMarketScene, amendOrderDirevativesScene, getTickersDirevativesScene, cancelAllOrdersDirevativesScene, cancelOrderDirevativesScene, getKlineDirevativesScene, getOrderBookDirevativesScene, placeOrderDirevativesScene, getOpenOrdersDirevativesScene, getOrdersHistoryScene, getWalletBalanceDirevativesScene]);
 bot.use(stage.middleware())
 
 
 const startBot = require("./auth.js");
-
-const direvativesMarket = require("./derivatives/derivativesMarket.js")
+// const direvativesMarket = require("./derivatives/derivativesMarket.js")
 const { calldirectivesMarket, callSpotMarket, callMainMenu } = require('./mainMenu.js');
 
 
@@ -34,6 +34,7 @@ bot.start(async (ctx) => {
   await client.connect();
   console.log("Connect completed");
   await startBot(ctx);
+  
 })
 
 bot.command("settings", async (ctx) => {
@@ -54,8 +55,10 @@ bot.command("info", async (ctx) => {
 
 bot.hears('Ринок Деривативів (USDT безстрокові)', async (ctx) => {
   await calldirectivesMarket(ctx);
-  await direvativesMarket();
+  ctx.scene.enter('direvativesMarket')
+  // await direvativesMarket(ctx);
 })
+
 
 bot.hears('Ринок Споту', (ctx) => callSpotMarket(ctx))
 

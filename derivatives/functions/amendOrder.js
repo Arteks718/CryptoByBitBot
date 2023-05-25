@@ -62,6 +62,7 @@ const amendOrderDirevatives = async (ctx, user) => {
                 if(result.result.orderLinkId) resultString += `\n<b>Користувацький ідентифікатор замовлення:</b> ${result.result.orderLinkId}`
                 await ctx.replyWithHTML(resultString)
                 ctx.scene.leave();
+                ctx.scene.enter('direvativesMarket')
               }
               else 
                 throw new Error(result.retMsg);
@@ -78,6 +79,7 @@ const amendOrderDirevatives = async (ctx, user) => {
   } else{
     ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
     ctx.scene.leave();
+    ctx.scene.enter('direvativesMarket')
   }
 }
 

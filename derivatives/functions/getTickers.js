@@ -41,9 +41,10 @@ const getTickersDirevatives = async(ctx, user) => {
                   { idTelegram: ctx.chat.id },
                   { $set: { status: "directivesMarket"}}  
                 )
-                ctx.reply("✅Операція виведення даних про криптовалюту успішна✅", keyboard);
+                await ctx.reply("✅Операція виведення даних про криптовалюту успішна✅", keyboard);
                 infoOutput(ctx, result.result.list[0]);
                 ctx.scene.leave()
+                ctx.scene.enter('direvativesMarket')
               } else{
                 throw new Error(result.retCode);
               }
@@ -61,6 +62,7 @@ const getTickersDirevatives = async(ctx, user) => {
   else {
     ctx.reply("❌Помилка, функція не обрана❌")
     ctx.scene.leave()
+    ctx.scene.enter('direvativesMarket')
   }
 }
 

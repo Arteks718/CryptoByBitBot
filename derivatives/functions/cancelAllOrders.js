@@ -53,6 +53,7 @@ const cancelAllOrders = async(ctx, user) =>{
                 ctx.reply(`Список замовлень за криптовалютою ${ctx.message.text.toUpperCase()} пустий 😔`)
               }
               ctx.scene.leave()
+              ctx.scene.enter('direvativesMarket')
             } else
                 throw new Error(result.retCode);
           })
@@ -69,6 +70,7 @@ const cancelAllOrders = async(ctx, user) =>{
   else {
     ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
     ctx.scene.leave()
+    ctx.scene.enter('direvativesMarket')
   } 
 }
 

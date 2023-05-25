@@ -43,6 +43,7 @@ const getOpenOrdersDirevatives = async(ctx, user) => {
                   ctx.reply("✅Операція успішна✅", directivesAPI);
                   result.result.list.forEach(order => infoOutput(ctx, order))
                   ctx.scene.leave();
+                  ctx.scene.enter('direvativesMarket')
                 } 
                 else 
                   ctx.reply("Немає активних замовлень на дану криптовалюту")
@@ -63,6 +64,7 @@ const getOpenOrdersDirevatives = async(ctx, user) => {
   else {
     ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
     ctx.scene.leave()
+    ctx.scene.enter('direvativesMarket')
   }
 }
 

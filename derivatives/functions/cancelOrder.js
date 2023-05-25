@@ -44,6 +44,7 @@ const cancelOrderDirevatives = async (ctx, user) => {
                 )
                 ctx.reply("✅Операція видалення замовлення успішна✅", directivesAPI);
                 ctx.scene.leave();
+                ctx.scene.enter('direvativesMarket')
               }
               else 
                 throw new Error(result.retCode);
@@ -61,6 +62,7 @@ const cancelOrderDirevatives = async (ctx, user) => {
   else {
     ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
     ctx.scene.leave()
+    ctx.scene.enter('direvativesMarket')
   }
 }
 

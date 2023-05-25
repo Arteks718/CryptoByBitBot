@@ -41,7 +41,8 @@ const getOrderBookDirevatives = async (ctx, user) => {
                 )
                 ctx.reply("✅Операція успішна✅");
                 infoOutput(ctx, result.result);
-                ctx.scene.leave();
+                ctx.scene.leave()
+                ctx.scene.enter('direvativesMarket');
               }
               else 
                 throw new Error(result.retCode);
@@ -66,6 +67,7 @@ const getOrderBookDirevatives = async (ctx, user) => {
                 ctx.reply("✅Операція виведення книги замовлень успішна✅", keyboard);
                 infoOutput(ctx, result.result);
                 ctx.scene.leave()
+                ctx.scene.enter('direvativesMarket')
               } 
               else 
                 throw new Error(result.retCode);
@@ -85,6 +87,7 @@ const getOrderBookDirevatives = async (ctx, user) => {
   } else {
     ctx.reply("❌Помилка, функція не обрана❌")
     ctx.scene.leave()
+    ctx.scene.enter('direvativesMarket')
   }
 }
 

@@ -46,6 +46,7 @@ const getKlineDirevatives = async (ctx, user) => {
                   ctx.reply("✅Операція виведення списку клинів успішна✅", keyboard);
                   infoOutput(ctx, result.result);
                   ctx.scene.leave();
+                  ctx.scene.enter('direvativesMarket')
                 }
                 else
                   throw new Error(result.retCode);
@@ -72,6 +73,7 @@ const getKlineDirevatives = async (ctx, user) => {
                   ctx.reply("✅Операція успішна✅", keyboard);
                   infoOutput(ctx, result.result);
                   ctx.scene.leave()
+                  ctx.scene.enter('direvativesMarket')
                 }
                 else
                   throw new Error(result.retCode);
@@ -90,6 +92,7 @@ const getKlineDirevatives = async (ctx, user) => {
   else {
     ctx.reply("❌Помилка, функція не обрана❌")
     ctx.scene.leave()
+    ctx.scene.enter('direvativesMarket')
   }
 }
 

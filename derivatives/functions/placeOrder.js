@@ -64,6 +64,7 @@ const placeOrderDirevatives = async(ctx, user) => {
                 await ctx.reply("✅Операція додавання замовлення успішна✅", directivesAPI);
                 await ctx.replyWithHTML(`<b>Ідентифікатор замовлення:</b> ${result.result.orderId}`)
                 ctx.scene.leave()
+                ctx.scene.enter('direvativesMarket')
               } 
               else 
                 throw new Error(result.retMsg);
@@ -81,6 +82,7 @@ const placeOrderDirevatives = async(ctx, user) => {
   else {
     ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
     ctx.scene.leave()
+    ctx.scene.enter('direvativesMarket')
   }
 }
 

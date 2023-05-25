@@ -45,9 +45,11 @@ const getOrdersHistory = async(ctx, user) => {
                     await ctx.reply("✅Операція виведення історії замовлень, успішна✅", directivesAPI);
                     result.result.list.forEach(item => infoOutput(ctx,item))
                     ctx.scene.leave();
+                    ctx.scene.enter('direvativesMarket')
                    } else {
                     ctx.reply(`Список історії замовлень за криптовалютою ${ctx.message.text.toUpperCase()} пустий 😔`)
                     ctx.scene.leave();
+                    ctx.scene.enter('direvativesMarket')
                    }
                 }              
                 else
@@ -73,9 +75,11 @@ const getOrdersHistory = async(ctx, user) => {
                   await ctx.reply("✅Операція виведення історії замовлень, успішна✅", directivesAPI);
                   result.result.list.forEach(item => infoOutput(ctx,item))
                   ctx.scene.leave();
+                  ctx.scene.enter('direvativesMarket')
                 } else {
                   ctx.reply(`Список історії замовлень за криптовалютою ${ctx.message.text.toUpperCase()} пустий 😔`)
                   ctx.scene.leave();
+                  ctx.scene.enter('direvativesMarket')
                 }
               }
               else
@@ -92,6 +96,7 @@ const getOrdersHistory = async(ctx, user) => {
   else {
     ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
     ctx.scene.leave();
+    ctx.scene.enter('direvativesMarket')
   }
 }
 

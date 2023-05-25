@@ -42,6 +42,7 @@ const getWalletBalanceDirevatives = async(ctx, user) => {
                 await ctx.reply("✅Операція отримання балансу успішна✅", directivesAPI);
                 specificCoin(ctx, result.result.list[0].coin[0]);
                 ctx.scene.leave();
+                ctx.scene.enter('direvativesMarket')
               } 
               else 
                 throw new Error(result.retCode);
@@ -58,6 +59,7 @@ const getWalletBalanceDirevatives = async(ctx, user) => {
                 const list = result.result.list[0].coin;
                 list.forEach((coin) => specificCoin(ctx, coin));
                 ctx.scene.leave()
+                ctx.scene.enter('direvativesMarket')
               }
               else
                 throw new Error(result.retCode);
@@ -75,6 +77,7 @@ const getWalletBalanceDirevatives = async(ctx, user) => {
   else{
     ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
     ctx.scene.leave()
+    ctx.scene.enter('direvativesMarket')
   } 
 }
 

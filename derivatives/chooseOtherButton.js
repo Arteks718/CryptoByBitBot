@@ -92,6 +92,7 @@ module.exports = async (ctx, text) => {
     case 'Повернутись на головну': {
       ctx.scene.leave();
       callMainMenu(ctx)
+      console.log("asdasd123")
       other = true;
       break;
     }
