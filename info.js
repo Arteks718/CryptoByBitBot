@@ -1,5 +1,5 @@
-const { BatchType } = require("mongodb");
 const { bot } = require("./config.js");
+const { Scenes } = require("telegraf");
 
 bot.action("infoTickers", (ctx) => {
   ctx.replyWithHTML(
@@ -45,7 +45,9 @@ bot.action("infoGetWalletBalance", (ctx) => {
   );
 });
 
-module.exports = (ctx) => {
+const infoScene = new Scenes.BaseScene('info')
+
+infoScene.enter(ctx => {
   return ctx.replyWithHTML(
     "Натисніть на кнопку потрібної Вам функції, для отримання більш детальної інформації:",
     {
@@ -65,4 +67,6 @@ module.exports = (ctx) => {
       },
     }
   );
-};
+})
+
+module.exports = { infoScene }

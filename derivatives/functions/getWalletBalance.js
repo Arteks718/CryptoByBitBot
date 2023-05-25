@@ -1,14 +1,23 @@
-const { bot, users } = require("../../config.js");
+const { users } = require("../../config.js");
 const { RestClientV5 } = require("bybit-api");
 const { directivesAPI } = require("../../keyboards")
+const chooseOtherButton = require('../chooseOtherButton.js')
+const { Scenes } = require("telegraf");
+const { message } = require("telegraf/filters");
 
-module.exports = async (ctx) => {
-  const user = await users.findOne({
+const getWalletBalanceDirevativesScene = new Scenes.BaseScene('walletBalanceDirevatives')
+
+getWalletBalanceDirevativesScene.enter(async ctx => {
+  let user = await users.findOne({
     idTelegram: ctx.chat.id,
     chooseButtonAPI: true,
     apiKey: { $exists: true },
     status: "walletBalanceDirevatives",
   });
+  getWalletBalanceDirevatives(ctx, user)
+})
+
+const getWalletBalanceDirevatives = async(ctx, user) => {
   if (user) {
     ctx.reply("Введіть символ або 'Усі' для виведення балансу усіх монет");
     const clientByBit = new RestClientV5({
@@ -17,45 +26,57 @@ module.exports = async (ctx) => {
       testnet: false,
       recv_window: 5000,
     });
-    bot.hears(/^[A-Za-zА-Яа-яі]/, (ctx) => {
-      if (/^[A-Za-z]/.test(ctx.message.text)) {
-        clientByBit
-          .getWalletBalance({
-            accountType: "CONTRACT",
-            coin: ctx.message.text.toUpperCase(),
-          })
-          .then(async (result) => {
-            if(result.retCode == 0) {
-              await users.updateOne(
-                { idTelegram: ctx.chat.id },
-                { $set: { status: "directivesMarket"}}  
-              )
-              ctx.reply("✅Операція отримання балансу успішна✅", directivesAPI);
-              specificCoin(ctx, result.result.list[0].coin[0]);
-            } 
-            else 
-              throw new Error(result.retCode);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      } else if ("Усі" == ctx.message.text) {
-        clientByBit
-          .getWalletBalance({ accountType: "CONTRACT" })
-          .then((result) => {
-            ctx.reply("✅Операція успішна✅");
-            const list = result.result.list[0].coin;
-            list.forEach((coin) => specificCoin(ctx, coin));
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      }
-    });
+
+    getWalletBalanceDirevativesScene.on(message("text"), async ctx => {
+      let otherButton;
+      await chooseOtherButton(ctx, ctx.message.text).then(value => {otherButton = value})
+      if(otherButton == false) {
+        if(ctx.message.text.match(/^[A-Za-z]/)) {
+          clientByBit.getWalletBalance({accountType: "CONTRACT", coin: ctx.message.text.toUpperCase()})
+            .then(async (result) => {
+              if(result.retCode == 0) {
+                await users.updateOne(
+                  { idTelegram: ctx.chat.id },
+                  { $set: { status: "directivesMarket"}}  
+                )
+                await ctx.reply("✅Операція отримання балансу успішна✅", directivesAPI);
+                specificCoin(ctx, result.result.list[0].coin[0]);
+                ctx.scene.leave();
+              } 
+              else 
+                throw new Error(result.retCode);
+            })
+            .catch((err) => {
+              ctx.reply("❌Помилка виведення даних про поточний баланс");
+              console.log(err);
+            });
+        } else if (ctx.message.text.match(/Усі/)) {
+          clientByBit.getWalletBalance({ accountType: "CONTRACT" })
+            .then(async (result) => {
+              if(result.retCode == 0) {
+                await ctx.reply("✅Операція отримання балансу успішна✅");
+                const list = result.result.list[0].coin;
+                list.forEach((coin) => specificCoin(ctx, coin));
+                ctx.scene.leave()
+              }
+              else
+                throw new Error(result.retCode);
+            })
+            .catch((err) => {
+              ctx.reply("❌Помилка виведення даних про поточний баланс");
+              console.log(err);
+            });
+        }
+        else
+          ctx.reply("❌Помилка, неправильно введено запит getWalletBalance. Будь ласка, спробуйте ще раз.")
+       }
+    })
   } 
-  else 
+  else{
     ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
-};
+    ctx.scene.leave()
+  } 
+}
 
 const specificCoin = (ctx, result) => {
   let resultString = "";
@@ -87,3 +108,61 @@ const specificCoin = (ctx, result) => {
     resultString += `<b>Сукупні реалізовані прибутки та збитки:</b> ${result.cumRealisedPnl}`;
   return ctx.replyWithHTML(resultString);
 };
+
+module.exports = { getWalletBalanceDirevativesScene }
+
+
+// module.exports = async (ctx) => {
+//   const user = await users.findOne({
+//     idTelegram: ctx.chat.id,
+//     chooseButtonAPI: true,
+//     apiKey: { $exists: true },
+//     status: "walletBalanceDirevatives",
+//   });
+//   if (user) {
+//     ctx.reply("Введіть символ або 'Усі' для виведення балансу усіх монет");
+//     const clientByBit = new RestClientV5({
+//       key: user.apiKey,
+//       secret: user.apiSecret,
+//       testnet: false,
+//       recv_window: 5000,
+//     });
+//     bot.hears(/^[A-Za-zА-Яа-яі]/, (ctx) => {
+//       if (/^[A-Za-z]/.test(ctx.message.text)) {
+//         clientByBit
+//           .getWalletBalance({
+//             accountType: "CONTRACT",
+//             coin: ctx.message.text.toUpperCase(),
+//           })
+//           .then(async (result) => {
+//             if(result.retCode == 0) {
+//               await users.updateOne(
+//                 { idTelegram: ctx.chat.id },
+//                 { $set: { status: "directivesMarket"}}  
+//               )
+//               ctx.reply("✅Операція отримання балансу успішна✅", directivesAPI);
+//               specificCoin(ctx, result.result.list[0].coin[0]);
+//             } 
+//             else 
+//               throw new Error(result.retCode);
+//           })
+//           .catch((err) => {
+//             console.log(err);
+//           });
+//       } else if ("Усі" == ctx.message.text) {
+//         clientByBit
+//           .getWalletBalance({ accountType: "CONTRACT" })
+//           .then((result) => {
+//             ctx.reply("✅Операція успішна✅");
+//             const list = result.result.list[0].coin;
+//             list.forEach((coin) => specificCoin(ctx, coin));
+//           })
+//           .catch((err) => {
+//             console.log(err);
+//           });
+//       }
+//     });
+//   } 
+//   else 
+//     ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
+// };

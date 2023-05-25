@@ -1,24 +1,36 @@
-const { Scenes, session } = require('telegraf')
 const { bot, client, users } = require('./config.js')
+const { Scenes, session } = require('telegraf')
+
 const { authScene } = require('./inputAPIKeys.js') 
 const { changeAPI } = require('./settings/changeAPIKeys.js')
-const { amendOrderScene } = require('./derivatives/functions/amendOrder.js');
+const { settingsScene } = require("./settings/settings.js");
+const { infoScene } = require("./info.js");
+
+const { amendOrderDirevativesScene } = require('./derivatives/functions/amendOrder.js');
 const { getTickersDirevativesScene } = require('./derivatives/functions/getTickers.js')
+const { cancelAllOrdersDirevativesScene } = require('./derivatives/functions/cancelAllOrders.js')
+const { cancelOrderDirevativesScene } = require('./derivatives/functions/cancelOrder.js')
+const { getKlineDirevativesScene } = require('./derivatives/functions/getKline.js')
+const { getOrderBookDirevativesScene } = require('./derivatives/functions/getOrderBook.js')
+const { placeOrderDirevativesScene } = require('./derivatives/functions/placeOrder.js')
+const { getOpenOrdersDirevativesScene } = require('./derivatives/functions/getOpenOrders.js')
+const { getOrdersHistoryScene } = require('./derivatives/functions/getOrdersHistory.js')
+const { getWalletBalanceDirevativesScene } = require('./derivatives/functions/getWalletBalance.js')
+
 // const { hearsGetWalletBalanceDirevatives, hearsGetTickersDirevatives, hearsPlaceOrderDirevatives, hearsAmendOrderDirevatives } = require('./derivatives/derivativesMarket.js')
 
+bot.use(session())
+const stage = new Scenes.Stage([authScene, changeAPI, settingsScene, infoScene, amendOrderDirevativesScene, getTickersDirevativesScene, cancelAllOrdersDirevativesScene, cancelOrderDirevativesScene, getKlineDirevativesScene, getOrderBookDirevativesScene, placeOrderDirevativesScene, getOpenOrdersDirevativesScene, getOrdersHistoryScene, getWalletBalanceDirevativesScene]);
+bot.use(stage.middleware())
 
-const getInfoText = require("./info.js");
+
 const startBot = require("./auth.js");
-const settingsBot = require("./settings/settings.js");
+
 const direvativesMarket = require("./derivatives/derivativesMarket.js")
 const { calldirectivesMarket, callSpotMarket, callMainMenu } = require('./mainMenu.js');
 
-bot.use(session())
-const stage = new Scenes.Stage([authScene, changeAPI, amendOrderScene, getTickersDirevativesScene]);
-bot.use(stage.middleware())
 
 bot.start(async (ctx) => {
-
   await client.connect();
   console.log("Connect completed");
   await startBot(ctx);
@@ -29,7 +41,7 @@ bot.command("settings", async (ctx) => {
     { idTelegram: ctx.chat.id},
     { $set: { status: 'settings'}
   })
-  await settingsBot(ctx);
+  await ctx.scene.enter('settings')
 })
 
 bot.command("info", async (ctx) => {
@@ -37,7 +49,7 @@ bot.command("info", async (ctx) => {
     { idTelegram: ctx.chat.id},
     { $set: { status: 'info'}
   })
-  await getInfoText(ctx);
+  await ctx.scene.enter('info')
 })
 
 bot.hears('Ринок Деривативів (USDT безстрокові)', async (ctx) => {

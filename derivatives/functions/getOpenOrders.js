@@ -1,15 +1,23 @@
-const { bot, users } = require("../../config");
+const { users } = require("../../config");
 const { RestClientV5 } = require("bybit-api");
 const { directivesAPI } = require("../../keyboards")
+const chooseOtherButton = require('../chooseOtherButton.js')
+const { Scenes } = require("telegraf");
+const { message } = require("telegraf/filters");
 
-module.exports = async (ctx) => {
-  console.log("test")
-  const user = await users.findOne({
+const getOpenOrdersDirevativesScene = new Scenes.BaseScene('getOpenOrdersDirevatives')
+
+getOpenOrdersDirevativesScene.enter(async ctx => {
+  let user = await users.findOne({
     idTelegram: ctx.chat.id,
     chooseButtonAPI: true,
     apiKey: { $exists: true },
     status: "getOpenOrdersDirevatives",
   });
+  getOpenOrdersDirevatives(ctx, user);
+})
+
+const getOpenOrdersDirevatives = async(ctx, user) => {
   if (user) {
     ctx.reply("Введіть символ за яким буде пошук активних замовлень, наприклад: BTCUSDT, ethusdt, BitUsDt")
     const clientByBit = new RestClientV5({
@@ -19,50 +27,43 @@ module.exports = async (ctx) => {
       recv_window: 10000,
     });
 
-    bot.on("message", async (ctx) => {
-      // if(/^[a-zA-Z0-9]{8}-(?:[a-zA-Z0-9]{4}-){3}[a-zA-Z0-9]{12}$/.test(ctx.message.text)){
-      //   console.log("first")
-      //   clientByBit.getActiveOrders({category: 'linear', orderId: ctx.message.text},)
-      //     .then(result => {
-      //       if(result.retCode == 0 ){
-      //         ctx.reply("✅Операція успішна✅");
-      //         infoOutput(ctx, result.result)
-      //       } 
-      //       else 
-      //         throw new Error(result.retMsg);
-      //     })
-      //     .catch(error => {
-      //       console.log(error)
-      //     })
-      // }
-      if (/^[A-Za-z]+/.test(ctx.message.text)) {
-        clientByBit.getActiveOrders({category: 'linear', symbol: ctx.message.text.toUpperCase()}, )
-        .then(async result => {
-          if(result.retCode == 0){
-            if(result.result.list.length != 0){
-              await users.updateOne(
-                { idTelegram: ctx.chat.id },
-                { $set: { status: "directivesMarket"}}  
-              )
-              ctx.reply("✅Операція успішна✅", directivesAPI);
-              result.result.list.forEach(order => infoOutput(ctx, order))
-            } 
-            else 
-              ctx.reply("Немає активних замовлень на дану криптовалюту")
-          } 
-          else 
-            throw new Error(result.retMsg);
-        })
-        .catch(error => {
-          ctx.reply("❌Помилка виведення активних замовлень");
-          console.log(error)
-        })
+    getOpenOrdersDirevativesScene.on(message("text"), async ctx => {
+      let otherButton;
+      await chooseOtherButton(ctx, ctx.message.text).then(value => {otherButton = value})
+      if(otherButton == false) {
+        if(ctx.message.text.match(/^[A-Za-z]/)) {
+          clientByBit.getActiveOrders({category: 'linear', symbol: ctx.message.text.toUpperCase()}, )
+            .then(async result => {
+              if(result.retCode == 0){
+                if(result.result.list.length != 0){
+                  await users.updateOne(
+                    { idTelegram: ctx.chat.id },
+                    { $set: { status: "directivesMarket"}}  
+                  )
+                  ctx.reply("✅Операція успішна✅", directivesAPI);
+                  result.result.list.forEach(order => infoOutput(ctx, order))
+                  ctx.scene.leave();
+                } 
+                else 
+                  ctx.reply("Немає активних замовлень на дану криптовалюту")
+              } 
+              else 
+                throw new Error(result.retMsg);
+            })
+            .catch(error => {
+              ctx.reply("❌Помилка виведення активних замовлень");
+              console.log(error)
+            })
+        }
+        else
+          ctx.reply("❌Помилка, неправильно введено запит getOpenOrders. Будь ласка, спробуйте ще раз.")
       }
-
     })
   }
-  else
+  else {
     ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
+    ctx.scene.leave()
+  }
 }
 
 const infoOutput = (ctx, result) => {
@@ -96,3 +97,52 @@ const infoOutput = (ctx, result) => {
   
   ctx.replyWithHTML(resultString);
 }
+
+module.exports = { getOpenOrdersDirevativesScene }
+
+// module.exports = async (ctx) => {
+//   const user = await users.findOne({
+//     idTelegram: ctx.chat.id,
+//     chooseButtonAPI: true,
+//     apiKey: { $exists: true },
+//     status: "getOpenOrdersDirevatives",
+//   });
+//   if (user) {
+//     ctx.reply("Введіть символ за яким буде пошук активних замовлень, наприклад: BTCUSDT, ethusdt, BitUsDt")
+//     const clientByBit = new RestClientV5({
+//       key: user.apiKey,
+//       secret: user.apiSecret,
+//       testnet: false,
+//       recv_window: 10000,
+//     });
+
+//     bot.on("message", async (ctx) => {
+//       if (/^[A-Za-z]+/.test(ctx.message.text)) {
+//         clientByBit.getActiveOrders({category: 'linear', symbol: ctx.message.text.toUpperCase()}, )
+//         .then(async result => {
+//           if(result.retCode == 0){
+//             if(result.result.list.length != 0){
+//               await users.updateOne(
+//                 { idTelegram: ctx.chat.id },
+//                 { $set: { status: "directivesMarket"}}  
+//               )
+//               ctx.reply("✅Операція успішна✅", directivesAPI);
+//               result.result.list.forEach(order => infoOutput(ctx, order))
+//             } 
+//             else 
+//               ctx.reply("Немає активних замовлень на дану криптовалюту")
+//           } 
+//           else 
+//             throw new Error(result.retMsg);
+//         })
+//         .catch(error => {
+//           ctx.reply("❌Помилка виведення активних замовлень");
+//           console.log(error)
+//         })
+//       }
+
+//     })
+//   }
+//   else
+//     ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
+// }
