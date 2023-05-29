@@ -32,16 +32,16 @@ const getTickersDirevatives = async(ctx, user) => {
         if(ctx.message.text.match(/^[A-Za-z]/)) {
           clientByBit.getTickers({category: "linear", symbol: ctx.message.text.toUpperCase()})
             .then(async (result) => {
-              // console.log(result.result.list[0])
               if(result.retCode == 0) {
-                let keyboard;
-                // console.log(user.chooseButtonAPI)
-                (user.chooseButtonAPI == true) ? keyboard = directivesAPI : keyboard = directivesWithoutAPI;
+                const user = await users.findOne({
+                  idTelegram: ctx.chat.id,
+                  status: "orderBookSpot",
+                });
+                (user.chooseButtonAPI == true) ? ctx.reply("✅Операція виведення даних про криптовалюту успішна✅", directivesAPI) : ctx.reply("✅Операція виведення даних про криптовалюту успішна✅", directivesWithoutAPI)
                 await users.updateOne(
                   { idTelegram: ctx.chat.id },
-                  { $set: { status: "directivesMarket"}}  
+                  { $set: { status: "direvativesMarket"}}  
                 )
-                await ctx.reply("✅Операція виведення даних про криптовалюту успішна✅", keyboard);
                 infoOutput(ctx, result.result.list[0]);
                 ctx.scene.leave()
                 ctx.scene.enter('direvativesMarket')
@@ -89,48 +89,3 @@ const infoOutput = (ctx, result) => {
 };
 
 module.exports = { getTickersDirevativesScene }
-
-// module.exports = async (ctx) => {
-//   const user = await users.findOne({
-//     idTelegram: ctx.chat.id,
-//     status: "tickersDirevatives",
-//   });
-//   if (user) {
-//     ctx.reply("Введіть пару символів, наприклад: BTCUSDT, ethusdt, BiTuSdT");
-//     const clientByBit = new RestClientV5({
-//       key: user.apiKey,
-//       secret: user.apiSecret,
-//       testnet: false,
-//       recv_window: 5000,
-//     });
-
-//     bot.hears(/^[A-Za-z]/, (ctx) => {
-//       clientByBit
-//         .getTickers({
-//           category: "linear",
-//           symbol: ctx.message.text.toUpperCase(),
-//         })
-//         .then(async (result) => {
-//           // console.log(result.result.list[0])
-//           if(result.retCode == 0) {
-//             let keyboard;
-//             (user.chooseButtonAPI == true) ? keyboard = directivesAPI : keyboard = directivesWithoutAPI;
-//             await users.updateOne(
-//               { idTelegram: ctx.chat.id },
-//               { $set: { status: "directivesMarket"}}  
-//             )
-//             ctx.reply("✅Операція виведення даних про криптовалюту успішна✅", keyboard);
-//             infoOutput(ctx, result.result.list[0]);
-//           } else{
-//             throw new Error(result.retCode);
-//           }
-//         })
-//         .catch((err) => {
-//           ctx.reply("❌Помилка");
-//           console.log(err);
-//         });
-//     });
-//   } 
-//   else
-//     ctx.reply("❌Помилка, функція не обрана❌")
-// };
