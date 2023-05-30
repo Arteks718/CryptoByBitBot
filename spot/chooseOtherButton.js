@@ -6,71 +6,64 @@ module.exports = async (ctx, text) => {
   switch(text) {
     case 'Get Tickers': {
       ctx.scene.leave();
-      await users.updateOne({idTelegram: ctx.chat.id}, { $set: { status: 'tickersDirevatives'}})
-      ctx.scene.enter('getTickersDirevatives')
+      await users.updateOne({idTelegram: ctx.chat.id}, { $set: { status: 'tickersSpot'}})
+      ctx.scene.enter('getTickersSpot')
       other = true;
       break;
     }
     case 'Get OrderBook': {
       ctx.scene.leave();
-      await users.updateOne({ idTelegram: ctx.chat.id }, { $set: { status: 'orderBookDirevatives' }})
-      ctx.scene.enter('getOrderBookDirevatives')
+      await users.updateOne({ idTelegram: ctx.chat.id }, { $set: { status: 'orderBookSpot' }})
+      ctx.scene.enter('getOrderBookSpot')
       other = true;
       break;
     }
     case 'Get Kline': {
       ctx.scene.leave();
-      await users.updateOne({ idTelegram: ctx.chat.id }, { $set: { status: 'klineDirevatives' }})
-      ctx.scene.enter("getKlineDirevatives")
-      other = true;
-      break;
-    }
-    case 'Amend Order': {
-      ctx.scene.leave();
-      await users.updateOne({idTelegram: ctx.chat.id}, { $set: { status: 'amendOrderDirevatives'}})
-      ctx.scene.enter('amendOrderDirevatives')
+      await users.updateOne({ idTelegram: ctx.chat.id }, { $set: { status: 'klineSpot' }})
+      ctx.scene.enter("getKlineSpot")
       other = true;
       break;
     }
     case 'Place Order': {
       ctx.scene.leave();
-      await users.updateOne({idTelegram: ctx.chat.id}, { $set: { status: 'placeOrderDirevatives'}})
-      ctx.scene.enter('placeOrderDirevatives')
+      await users.updateOne({idTelegram: ctx.chat.id}, { $set: { status: 'placeOrderSpot'}})
+      ctx.scene.enter('placeOrderSpot')
       other = true;
       break;
     }
     case 'Cancel Order': {
       ctx.scene.leave();
-      await users.updateOne({idTelegram: ctx.chat.id}, { $set: { status: 'cancelOrderDirevatives'}})
-      ctx.scene.enter('cancelOrderDirevatives')
+      await users.updateOne({idTelegram: ctx.chat.id}, { $set: { status: 'cancelOrderSpot'}})
+      ctx.scene.enter('cancelOrderSpot')
       other = true;
       break;
     }
     case 'Cancel All Orders': {
       ctx.scene.leave();
-      await users.updateOne({idTelegram: ctx.chat.id}, { $set: { status: 'cancelAllOrdersDirevatives'}})
-      ctx.scene.enter('cancelAllOrdersDirevatives')
+      await users.updateOne({idTelegram: ctx.chat.id}, { $set: { status: 'cancelAllOrdersSpot'}})
+      ctx.scene.enter('cancelAllOrdersSpot')
       other = true;
       break;
     }
     case 'Get Open Orders': {
       ctx.scene.leave();
-      await users.updateOne({ idTelegram: ctx.chat.id }, { $set: { status: 'getOpenOrdersDirevatives' }});
-      await ctx.scene.enter('getOpenOrdersDirevatives')
+      await users.updateOne({ idTelegram: ctx.chat.id }, { $set: { status: 'getOpenOrdersSpot' }});
+      await ctx.scene.enter('getOpenOrdersSpot')
       other = true;
       break;
     }
     case 'Get Orders History': {
       ctx.scene.leave();
-      await users.updateOne({ idTelegram: ctx.chat.id }, { $set: { status: 'getOrdersHistoryDirevatives' }});
-      await ctx.scene.enter('getOrdersHistoryDirevatives')
+      await users.updateOne({ idTelegram: ctx.chat.id }, { $set: { status: 'getOrdersHistorySpot' }});
+      await ctx.scene.enter('getOrdersHistorySpot')
       other = true;
       break;
     }
     case 'Get Wallet Balance': {
       ctx.scene.leave();
-      await users.updateOne({ idTelegram: ctx.chat.id }, { $set: { status: 'walletBalanceDirevatives' }});
-      await ctx.scene.enter("walletBalanceDirevatives")
+      await users.updateOne({ idTelegram: ctx.chat.id }, { $set: { status: 'walletBalanceSpot' }});
+      await ctx.scene.enter("walletBalanceSpot")
       other = true;
       break;
     }

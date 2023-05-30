@@ -5,14 +5,14 @@ const mainKeyboard = Markup.keyboard([
   "Ринок Споту",
 ]).oneTime();
 
-const directivesAPI = Markup.keyboard([
+const direvativesAPI = Markup.keyboard([
   ["Get Tickers", "Get OrderBook", "Get Kline"],
   ["Amend Order", "Place Order", "Cancel Order", "Cancel All Orders"],
   ["Get Open Orders", "Get Orders History", "Get Wallet Balance"],
   ["Повернутись на головну"],
 ]).resize();
 
-const directivesWithoutAPI = Markup.keyboard([
+const direvativesWithoutAPI = Markup.keyboard([
   ["Get Tickers", "Get OrderBook", "Get Kline"],
   ["Повернутись на головну"],
 ]).resize();
@@ -44,8 +44,8 @@ const subscribe = Markup.keyboard([
 
 module.exports = {
   mainKeyboard,
-  directivesAPI,
-  directivesWithoutAPI,
+  direvativesAPI,
+  direvativesWithoutAPI,
   spotAPI,
   spotWithoutAPI,
   noSubscribe,

@@ -1,23 +1,23 @@
 const { users } = require("../../config");
 const { RestClientV5 } = require("bybit-api");
-const { direvativesAPI } = require("../../keyboards")
+const { spotAPI } = require("../../keyboards")
 const chooseOtherButton = require('../chooseOtherButton.js')
 const { Scenes } = require("telegraf");
 const { message } = require("telegraf/filters");
 
-const getOpenOrdersDirevativesScene = new Scenes.BaseScene('getOpenOrdersDirevatives')
+const getOpenOrdersSpotScene = new Scenes.BaseScene('getOpenOrdersSpot')
 
-getOpenOrdersDirevativesScene.enter(async ctx => {
+getOpenOrdersSpotScene.enter(async ctx => {
   let user = await users.findOne({
     idTelegram: ctx.chat.id,
     chooseButtonAPI: true,
     apiKey: { $exists: true },
-    status: "getOpenOrdersDirevatives",
+    status: "getOpenOrdersSpot",
   });
-  getOpenOrdersDirevatives(ctx, user);
+  getOpenOrdersSpot(ctx, user);
 })
 
-const getOpenOrdersDirevatives = async(ctx, user) => {
+const getOpenOrdersSpot = async(ctx, user) => {
   if (user) {
     ctx.reply("Введіть символ за яким буде пошук активних замовлень, наприклад: BTCUSDT, ethusdt, BitUsDt")
     const clientByBit = new RestClientV5({
@@ -27,23 +27,24 @@ const getOpenOrdersDirevatives = async(ctx, user) => {
       recv_window: 10000,
     });
 
-    getOpenOrdersDirevativesScene.on(message("text"), async ctx => {
+    getOpenOrdersSpotScene.on(message("text"), async ctx => {
       let otherButton;
       await chooseOtherButton(ctx, ctx.message.text).then(value => {otherButton = value})
       if(otherButton == false) {
         if(ctx.message.text.match(/^[A-Za-z]/)) {
-          clientByBit.getActiveOrders({category: 'linear', symbol: ctx.message.text.toUpperCase()}, )
+          clientByBit.getActiveOrders({category: 'spot', symbol: ctx.message.text.toUpperCase()}, )
             .then(async result => {
               if(result.retCode == 0){
+                console.log(result)
                 if(result.result.list.length != 0){
                   await users.updateOne(
                     { idTelegram: ctx.chat.id },
-                    { $set: { status: "direvativesMarket"}}  
+                    { $set: { status: "spotMarket"}}  
                   )
-                  ctx.reply("✅Операція успішна✅", direvativesAPI);
+                  ctx.reply("✅Операція успішна✅", spotAPI);
                   result.result.list.forEach(order => infoOutput(ctx, order))
                   ctx.scene.leave();
-                  ctx.scene.enter('direvativesMarket')
+                  ctx.scene.enter('spotMarket')
                 } 
                 else 
                   ctx.reply(`Список активних замовлень за криптовалютою ${ctx.message.text.toUpperCase()} пустий 😔`)
@@ -64,7 +65,7 @@ const getOpenOrdersDirevatives = async(ctx, user) => {
   else {
     ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
     ctx.scene.leave()
-    ctx.scene.enter('direvativesMarket')
+    ctx.scene.enter('spotMarket')
   }
 }
 
@@ -85,7 +86,7 @@ const infoOutput = (ctx, result) => {
   if(result.orderId)
     resultString += `<b>Номер замовлення:</b> ${result.orderId}\n`
   if(result.orderLinkId)
-    resultString += `<b>Налаштований користувачем ідентифікатор замовлення:</b> ${result.orderLinkId}`
+    resultString += `<b>Користувацький ідентифікатор замовлення:</b> ${result.orderLinkId}\n`
   if(result.stopOrderType)
     resultString += `<b>Тип зупинки замовлення:</b> ${result.stopOrderType}\n`;
   if(result.orderStatus)
@@ -100,4 +101,4 @@ const infoOutput = (ctx, result) => {
   ctx.replyWithHTML(resultString);
 }
 
-module.exports = { getOpenOrdersDirevativesScene }
+module.exports = { getOpenOrdersSpotScene }

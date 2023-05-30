@@ -1,5 +1,5 @@
 const { users } = require("./config.js");
-const { mainKeyboard, directivesAPI, directivesWithoutAPI, spotAPI, spotWithoutAPI } = require("./keyboards.js");
+const { mainKeyboard, direvativesAPI, direvativesWithoutAPI, spotAPI, spotWithoutAPI } = require("./keyboards.js");
 
 const callSpotMarket = async (ctx) => {
   await users.findOne({ idTelegram: ctx.chat.id, chooseButtonAPI: true })
@@ -8,11 +8,11 @@ const callSpotMarket = async (ctx) => {
   await users.updateOne( { idTelegram: ctx.chat.id }, {$set: {status: "spotMarket"}})
 }
 
-const calldirectivesMarket = async (ctx) => {
+const calldirevativesMarket = async (ctx) => {
   await users.findOne({ idTelegram: ctx.chat.id, chooseButtonAPI: true })
-  ? ctx.reply('Ласкаво просимо до ринку диревативів', directivesAPI)
-  : ctx.reply('Ласкаво просимо до ринку диревативів', directivesWithoutAPI);
-  await users.updateOne( { idTelegram: ctx.chat.id }, {$set: {status: "directivesMarket" }})
+  ? ctx.reply('Ласкаво просимо до ринку диревативів', direvativesAPI)
+  : ctx.reply('Ласкаво просимо до ринку диревативів', direvativesWithoutAPI);
+  await users.updateOne( { idTelegram: ctx.chat.id }, {$set: {status: "direvativesMarket" }})
 }
 
 const callMainMenu = async (ctx) => {
@@ -20,4 +20,4 @@ const callMainMenu = async (ctx) => {
   await users.updateOne( { idTelegram: ctx.chat.id }, { $set: { status: "mainMenu" }})
 }
 
-module.exports = { callSpotMarket, calldirectivesMarket, callMainMenu };
+module.exports = { callSpotMarket, calldirevativesMarket, callMainMenu };

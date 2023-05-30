@@ -1,25 +1,25 @@
 const { users } = require("../../config.js");
 const { RestClientV5 } = require("bybit-api");
-const { direvativesAPI } = require("../../keyboards")
+const { spotAPI } = require("../../keyboards")
 const chooseOtherButton = require('../chooseOtherButton.js')
 const { Scenes } = require("telegraf");
 const { message } = require("telegraf/filters");
 
-const getWalletBalanceDirevativesScene = new Scenes.BaseScene('walletBalanceDirevatives')
+const getWalletBalanceSpotScene = new Scenes.BaseScene('walletBalanceSpot')
 
-getWalletBalanceDirevativesScene.enter(async ctx => {
+getWalletBalanceSpotScene.enter(async ctx => {
   let user = await users.findOne({
     idTelegram: ctx.chat.id,
     chooseButtonAPI: true,
     apiKey: { $exists: true },
-    status: "walletBalanceDirevatives",
+    status: "walletBalanceSpot",
   });
-  getWalletBalanceDirevatives(ctx, user)
+  getWalletBalanceSpot(ctx, user)
 })
 
-const getWalletBalanceDirevatives = async(ctx, user) => {
+const getWalletBalanceSpot = async(ctx, user) => {
   if (user) {
-    ctx.reply("Введіть символ або 'Усі' для виведення балансу усіх монет");
+    ctx.reply("Введіть символ, наприклад: BTC, usdt, BiT. Або слово 'Усі' для виведення інформації про баланс усіх валют");
     const clientByBit = new RestClientV5({
       key: user.apiKey,
       secret: user.apiSecret,
@@ -27,22 +27,22 @@ const getWalletBalanceDirevatives = async(ctx, user) => {
       recv_window: 5000,
     });
 
-    getWalletBalanceDirevativesScene.on(message("text"), async ctx => {
+    getWalletBalanceSpotScene.on(message("text"), async ctx => {
       let otherButton;
       await chooseOtherButton(ctx, ctx.message.text).then(value => {otherButton = value})
       if(otherButton == false) {
         if(ctx.message.text.match(/^[A-Za-z]/)) {
-          clientByBit.getWalletBalance({accountType: "CONTRACT", coin: ctx.message.text.toUpperCase()})
+          clientByBit.getWalletBalance({accountType: "SPOT", coin: ctx.message.text.toUpperCase()})
             .then(async (result) => {
               if(result.retCode == 0) {
                 await users.updateOne(
                   { idTelegram: ctx.chat.id },
-                  { $set: { status: "direvativesMarket"}}  
+                  { $set: { status: "spotMarket"}}  
                 )
-                await ctx.reply("✅Операція отримання балансу успішна✅", direvativesAPI);
-                specificCoin(ctx, result.result.list[0].coin[0]);
+                await specificCoin(ctx, result.result.list[0].coin[0]);
+                await ctx.reply("✅Операція отримання балансу успішна✅", spotAPI);
                 ctx.scene.leave();
-                ctx.scene.enter('direvativesMarket')
+                ctx.scene.enter('spotMarket')
               } 
               else 
                 throw new Error(result.retCode);
@@ -52,14 +52,20 @@ const getWalletBalanceDirevatives = async(ctx, user) => {
               console.log(err);
             });
         } else if (ctx.message.text.match(/Усі/)) {
-          clientByBit.getWalletBalance({ accountType: "CONTRACT" })
+          clientByBit.getWalletBalance({ accountType: "SPOT" })
             .then(async (result) => {
+              console.log(result)
               if(result.retCode == 0) {
-                await ctx.reply("✅Операція отримання балансу успішна✅");
-                const list = result.result.list[0].coin;
-                list.forEach((coin) => specificCoin(ctx, coin));
-                ctx.scene.leave()
-                ctx.scene.enter('direvativesMarket')
+                console.log(result.result.list[0])
+                if(result.result.list[0].coin.length != 0) {
+                  await ctx.reply("✅Операція отримання балансу успішна✅");
+                  const list = result.result.list[0].coin;
+                  list.forEach((coin) => specificCoin(ctx, coin));
+                  ctx.scene.leave()
+                  ctx.scene.enter('spotMarket')
+                }
+                else
+                  ctx.reply(`Список криптовалют з балансом пустий 😔`)
               }
               else
                 throw new Error(result.retCode);
@@ -77,7 +83,7 @@ const getWalletBalanceDirevatives = async(ctx, user) => {
   else{
     ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
     ctx.scene.leave()
-    ctx.scene.enter('direvativesMarket')
+    ctx.scene.enter('spotMarket')
   } 
 }
 
@@ -91,6 +97,10 @@ const specificCoin = (ctx, result) => {
     resultString += `<b>Вартість у доларах США:</b> ${result.usdValue}$\n`;
   if (result.walletBalance && result.walletBalance != 0)
     resultString += `<b>Баланс монети в гаманці:</b> ${result.walletBalance}\n`;
+  if(result.free)
+    resultString += `<b>Доступний баланс для спот гаманця:</b> ${result.free}\n`
+  if(result.locked && result.locked != 0)
+    resultString += `<b>Заблокований баланс для спот гаманця:</b> ${result.locked}\n`
   if (result.borrowAmount && result.borrowAmount != 0)
     resultString += `<b>Сума позики монети:</b> ${result.borrowAmount}\n`;
   if (result.availableToBorrow && result.availableToBorrow != 0)
@@ -112,4 +122,4 @@ const specificCoin = (ctx, result) => {
   return ctx.replyWithHTML(resultString);
 };
 
-module.exports = { getWalletBalanceDirevativesScene }
+module.exports = { getWalletBalanceSpotScene }

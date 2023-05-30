@@ -1,25 +1,25 @@
 const { users } = require("../../config");
 const { RestClientV5 } = require("bybit-api");
-const { direvativesAPI } = require("../../keyboards")
+const { spotAPI } = require("../../keyboards")
 const chooseOtherButton = require('../chooseOtherButton.js')
 const { Scenes } = require("telegraf");
 const { message } = require("telegraf/filters");
 
-const cancelOrderDirevativesScene = new Scenes.BaseScene('cancelOrderDirevatives')
+const cancelOrderSpotScene = new Scenes.BaseScene('cancelOrderSpot')
 
-cancelOrderDirevativesScene.enter(async ctx => {
+cancelOrderSpotScene.enter(async ctx => {
     let user = await users.findOne({
     idTelegram: ctx.chat.id,
     chooseButtonAPI: true,
     apiKey: { $exists: true },
-    status: "cancelOrderDirevatives",
+    status: "cancelOrderSpot",
   });
-  cancelOrderDirevatives(ctx, user)
+  cancelOrderSpot(ctx, user)
 })
 
-const cancelOrderDirevatives = async (ctx, user) => {
+const cancelOrderSpot = async (ctx, user) => {
   if(user) {
-    ctx.replyWithHTML(`Введіть запит за наступим виклядом:\n<i>symbol:orderId</i>\n\nsymbol - це символ пошуку(наприклад BTCUSD, ethusdt)\norderId - це ідентифікатор замовлення, отримати його можна за командою "Get Open Orders"\nОсь приклад введення запиту:\n<i>BTCUSDT:bfd222dd-d17a-4a9e-90f3-7b081dfee319</i>`);
+    ctx.replyWithHTML(`Введіть запит за наступим виклядом:\n<i>symbol:orderId</i>\n\nsymbol - це символ пошуку(наприклад BTCUSD, ethusdt)\norderId - це ідентифікатор замовлення, отримати його можна за командою "Get Open Orders"\nОсь приклад введення запиту:\n<i>BTCUSDT:1431320586543534080</i>`);
     let clientByBit = new RestClientV5({
       key: user.apiKey,
       secret: user.apiSecret,
@@ -27,24 +27,24 @@ const cancelOrderDirevatives = async (ctx, user) => {
       recv_window: 5000,
     });
 
-    cancelOrderDirevativesScene.on(message("text"), async ctx => {
+    cancelOrderSpotScene.on(message("text"), async ctx => {
       let otherButton;
       await chooseOtherButton(ctx, ctx.message.text).then(value => {otherButton = value})
       if(otherButton == false) {
-        if(ctx.message.text.match(/^[A-Za-z]+:[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$/)) {
+        if(ctx.message.text.match(/^[A-Za-z]+:\d+$/)) {
           const arrayOfStrings = ctx.message.text.split(":");
           const symbol = arrayOfStrings[0];
           const orderId = arrayOfStrings[1];
-          clientByBit.cancelOrder({ category: 'linear', symbol: symbol.toUpperCase(), orderId: orderId })
+          clientByBit.cancelOrder({ category: 'spot', symbol: symbol.toUpperCase(), orderId: orderId })
             .then(async result => {
               if(result.retCode == 0) {
                 await users.updateOne(
                   { idTelegram: ctx.chat.id },
-                  { $set: { status: "direvativesMarket"}}  
+                  { $set: { status: "spotMarket"}}  
                 )
-                ctx.reply("✅Операція видалення замовлення успішна✅", direvativesAPI);
+                ctx.reply("✅Операція видалення замовлення успішна✅", spotAPI);
                 ctx.scene.leave();
-                ctx.scene.enter('direvativesMarket')
+                ctx.scene.enter('spotMarket')
               }
               else 
                 throw new Error(result.retCode);
@@ -62,8 +62,8 @@ const cancelOrderDirevatives = async (ctx, user) => {
   else {
     ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
     ctx.scene.leave()
-    ctx.scene.enter('direvativesMarket')
+    ctx.scene.enter('spotMarket')
   }
 }
 
-module.exports = { cancelOrderDirevativesScene }
+module.exports = { cancelOrderSpotScene }

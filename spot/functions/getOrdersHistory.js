@@ -1,18 +1,18 @@
 const { users } = require("../../config");
 const { RestClientV5 } = require("bybit-api");
-const { direvativesAPI } = require("../../keyboards")
+const { spotAPI } = require("../../keyboards")
 const chooseOtherButton = require('../chooseOtherButton.js')
 const { Scenes } = require("telegraf");
 const { message } = require("telegraf/filters");
 
-const getOrdersHistoryDirevativesScene = new Scenes.BaseScene('getOrdersHistoryDirevatives')
+const getOrdersHistorySpotScene = new Scenes.BaseScene('getOrdersHistorySpot')
 
-getOrdersHistoryDirevativesScene.enter(async ctx => {
+getOrdersHistorySpotScene.enter(async ctx => {
   let user = await users.findOne({
     idTelegram: ctx.chat.id,
     chooseButtonAPI: true,
     apiKey: { $exists: true },
-    status: "getOrdersHistoryDirevatives",
+    status: "getOrdersHistorySpot",
   });
   getOrdersHistory(ctx, user)
 })
@@ -27,29 +27,29 @@ const getOrdersHistory = async(ctx, user) => {
       recv_window: 5000,
     });
 
-    getOrdersHistoryDirevativesScene.on(message("text"), async ctx => {
+    getOrdersHistorySpotScene.on(message("text"), async ctx => {
       let otherButton;
       await chooseOtherButton(ctx, ctx.message.text).then(value => {otherButton = value})
       if(otherButton == false) { 
         if(ctx.message.text.match(/^[A-Za-z]+:\d+$/g)) {
           const arrayOfStrings = ctx.message.text.split(":");
           if(arrayOfStrings[1] < 50) {
-            clientByBit.getHistoricOrders({category: 'linear', symbol: arrayOfStrings[0].toUpperCase(), limit: Number(arrayOfStrings[1])})
+            clientByBit.getHistoricOrders({category: 'spot', symbol: arrayOfStrings[0].toUpperCase(), limit: Number(arrayOfStrings[1])})
               .then(async result => {
                 if(result.retCode == 0) {
                   if(result.result.list.length != 0) {
                     await users.updateOne(
                       { idTelegram: ctx.chat.id },
-                      { $set: { status: "direvativesMarket"}}  
+                      { $set: { status: "spotMarket"}}  
                     )
-                    await ctx.reply("✅Операція виведення історії замовлень, успішна✅", direvativesAPI);
+                    await ctx.reply("✅Операція виведення історії замовлень, успішна✅", spotAPI);
                     result.result.list.forEach(item => infoOutput(ctx,item))
                     ctx.scene.leave();
-                    ctx.scene.enter('direvativesMarket')
+                    ctx.scene.enter('spotMarket')
                    } else {
                     ctx.reply(`Список історії замовлень за криптовалютою ${ctx.message.text.toUpperCase()} пустий 😔`)
                     ctx.scene.leave();
-                    ctx.scene.enter('direvativesMarket')
+                    ctx.scene.enter('spotMarket')
                    }
                 }              
                 else
@@ -64,22 +64,22 @@ const getOrdersHistory = async(ctx, user) => {
             clx.reply("❌Помилка, кількість запитів перевищує максимально допустиме. Будь ласка, введіть значення менше та спробуйте ще раз.")          
         }       
         else if(/^[A-Za-z]+/.test(ctx.message.text)){
-          clientByBit.getHistoricOrders({category: 'linear', symbol: ctx.message.text.toUpperCase()})
+          clientByBit.getHistoricOrders({category: 'spot', symbol: ctx.message.text.toUpperCase()})
             .then(async result => {
               if(result.retCode == 0) {
                 if(result.result.list.length != 0) {
                   await users.updateOne(
                     { idTelegram: ctx.chat.id },
-                    { $set: { status: "direvativesMarket"}} 
+                    { $set: { status: "spotMarket"}} 
                   )
-                  await ctx.reply("✅Операція виведення історії замовлень, успішна✅", direvativesAPI);
+                  await ctx.reply("✅Операція виведення історії замовлень, успішна✅", spotAPI);
                   result.result.list.forEach(item => infoOutput(ctx,item))
                   ctx.scene.leave();
-                  ctx.scene.enter('direvativesMarket')
+                  ctx.scene.enter('spotMarket')
                 } else {
                   ctx.reply(`Список історії замовлень за криптовалютою ${ctx.message.text.toUpperCase()} пустий 😔`)
                   ctx.scene.leave();
-                  ctx.scene.enter('direvativesMarket')
+                  ctx.scene.enter('spotMarket')
                 }
               }
               else
@@ -96,7 +96,7 @@ const getOrdersHistory = async(ctx, user) => {
   else {
     ctx.reply("❌Помилка, функція не обрана, або ваш аккаунт не підходить до даної функції❌")
     ctx.scene.leave();
-    ctx.scene.enter('direvativesMarket')
+    ctx.scene.enter('spotMarket')
   }
 }
 
@@ -128,4 +128,4 @@ const infoOutput = async (ctx, result) => {
   await ctx.replyWithHTML(resultString)
 }
 
-module.exports = { getOrdersHistoryDirevativesScene }
+module.exports = { getOrdersHistorySpotScene }

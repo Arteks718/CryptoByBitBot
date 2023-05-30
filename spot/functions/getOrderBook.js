@@ -1,50 +1,50 @@
 const { users } = require("../../config");
 const { RestClientV5 } = require("bybit-api");
-const { direvativesAPI, direvativesWithoutAPI } = require("../../keyboards")
+const { spotAPI, spotWithoutAPI } = require("../../keyboards")
 const chooseOtherButton = require('../chooseOtherButton.js')
 const { Scenes } = require("telegraf");
 const { message } = require("telegraf/filters");
 
-const getOrderBookDirevativesScene = new Scenes.BaseScene('getOrderBookDirevatives');
+const getOrderBookSpotScene = new Scenes.BaseScene('getOrderBookSpot');
 
-getOrderBookDirevativesScene.enter(async ctx => {
+getOrderBookSpotScene.enter(async ctx => {
   let user = await users.findOne({
     idTelegram: ctx.chat.id,
-    status: "orderBookDirevatives",
+    status: "orderBookSpot",
   });
-  getOrderBookDirevatives(ctx, user);
+  getOrderBookSpot(ctx, user);
 })
 
-const getOrderBookDirevatives = async (ctx, user) => {
+const getOrderBookSpot = async (ctx, user) => {
   if (user) {
-    ctx.replyWithHTML("Введіть пару символів, наприклад: BTCUSDT, ethusdt, BiTuSdT.\nЗа замовчуванням виведеться <b>25 запитів</b>, або ви можете обрати кількість запитів<b>(не може перевищувати 200)</b>, якщо ввести запит за форматом:\n\n<b>symbol:limit</b>\n\nНаприклад: BTCUSDT:30");
-    const clientByBit = new RestClientV5({
+    ctx.replyWithHTML("Введіть пару символів, наприклад: BTCUSDT, ethusdt, BiTuSdT.\nЗа замовчуванням виведеться <b>20 запитів</b>, або ви можете обрати кількість запитів<b>(не може перевищувати 50)</b>, якщо ввести запит за форматом:\n\n<b>symbol:limit</b>\n\nНаприклад: BTCUSDT:30");
+    let clientByBit = new RestClientV5({
       key: user.apiKey,
       secret: user.apiSecret,
       testnet: false,
       recv_window: 5000,
     });
 
-    getOrderBookDirevativesScene.on(message("text"), async ctx => {
+    getOrderBookSpotScene.on(message("text"), async ctx => {
       let otherButton;
       await chooseOtherButton(ctx, ctx.message.text).then(value => {otherButton = value})
-      if(otherButton == false) { 
+      if(otherButton == false) {
         if (ctx.message.text.match(/[A-Za-z]+$/)) {
-          clientByBit.getOrderbook({ category: "linear", symbol: ctx.message.text.toUpperCase() })
+          clientByBit.getOrderbook({ category: "spot", symbol: ctx.message.text.toUpperCase(), limit: 20 })
             .then(async (result) => {
               if(result.retCode == 0) {
-                let user = await users.findOne({
+                const user = await users.findOne({
                   idTelegram: ctx.chat.id,
-                  status: "orderBookDirevatives",
+                  status: "orderBookSpot",
                 });
-                (user.chooseButtonAPI == true) ? ctx.reply("✅Операція виведення книги замовлень успішна✅", direvativesAPI) : ctx.reply("✅Операція виведення книги замовлень успішна✅", direvativesWithoutAPI)
+                (user.chooseButtonAPI == true) ? ctx.reply("✅Операція виведення книги замовлень успішна✅", spotAPI) : ctx.reply("✅Операція виведення книги замовлень успішна✅", spotWithoutAPI)
                 await users.updateOne(
                   { idTelegram: ctx.chat.id },
-                  { $set: { status: "direvativesMarket"}}  
+                  { $set: { status: "spotMarket"}}  
                 )
                 infoOutput(ctx, result.result);
                 ctx.scene.leave()
-                ctx.scene.enter('direvativesMarket');
+                ctx.scene.enter('spotMarket');
               }
               else 
                 throw new Error(result.retCode);
@@ -56,22 +56,22 @@ const getOrderBookDirevatives = async (ctx, user) => {
         }
         else if(ctx.message.text.match(/^[A-Za-z]+:\d+$/g)) {
           const arrayOfStrings = ctx.message.text.split(":");
-          if(arrayOfStrings[1] <= 200) {
-            clientByBit.getOrderbook({ category: "linear", symbol: arrayOfStrings[0].toUpperCase(), limit: parseInt(arrayOfStrings[1]) })
+          if(arrayOfStrings[1] <= 50) {
+            clientByBit.getOrderbook({ category: "spot", symbol: arrayOfStrings[0].toUpperCase(), limit: parseInt(arrayOfStrings[1]) })
             .then(async (result) => {
               if(result.retCode == 0) {
-                let user = await users.findOne({
+                const user = await users.findOne({
                   idTelegram: ctx.chat.id,
-                  status: "orderBookDirevatives",
+                  status: "orderBookSpot",
                 });
-                (user.chooseButtonAPI == true) ? ctx.reply("✅Операція виведення книги замовлень успішна✅", direvativesAPI) : ctx.reply("✅Операція виведення книги замовлень успішна✅", direvativesWithoutAPI)
+                (user.chooseButtonAPI == true) ? ctx.reply("✅Операція виведення книги замовлень успішна✅", spotAPI) : ctx.reply("✅Операція виведення книги замовлень успішна✅", spotWithoutAPI)
                 await users.updateOne(
                   { idTelegram: ctx.chat.id },
-                  { $set: { status: "direvativesMarket"}}  
+                  { $set: { status: "spotMarket"}}  
                 )
                 infoOutput(ctx, result.result);
                 ctx.scene.leave()
-                ctx.scene.enter('direvativesMarket')
+                ctx.scene.enter('spotMarket')
               } 
               else 
                 throw new Error(result.retCode);
@@ -91,7 +91,7 @@ const getOrderBookDirevatives = async (ctx, user) => {
   } else {
     ctx.reply("❌Помилка, функція не обрана❌")
     ctx.scene.leave()
-    ctx.scene.enter('direvativesMarket')
+    ctx.scene.enter('spotMarket')
   }
 }
 
@@ -114,4 +114,4 @@ const infoOutput = (ctx, result) => {
   return ctx.replyWithHTML(resultString);
 }
 
-module.exports = { getOrderBookDirevativesScene }
+module.exports = { getOrderBookSpotScene }
