@@ -55,7 +55,6 @@ const placeOrderSpot = async(ctx, user) => {
           }
           const price = arrayOfStrings[4];
             if(price != "0") placeOrder.price = price
-          console.log(placeOrder)
             clientByBit.submitOrder(placeOrder)
             .then(async result => {
               if(result.retCode == 0){

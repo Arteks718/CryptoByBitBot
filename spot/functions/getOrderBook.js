@@ -42,7 +42,9 @@ const getOrderBookSpot = async (ctx, user) => {
                   { idTelegram: ctx.chat.id },
                   { $set: { status: "spotMarket"}}  
                 )
-                infoOutput(ctx, result.result);
+                const messages = infoOutput(result.result);
+                for(let i = 0; i < messages.length; i++) 
+                  await ctx.replyWithHTML(messages[i])
                 ctx.scene.leave()
                 ctx.scene.enter('spotMarket');
               }
@@ -69,7 +71,9 @@ const getOrderBookSpot = async (ctx, user) => {
                   { idTelegram: ctx.chat.id },
                   { $set: { status: "spotMarket"}}  
                 )
-                infoOutput(ctx, result.result);
+                const messages = infoOutput(result.result);
+                for(let i = 0; i < messages.length; i++) 
+                  await ctx.replyWithHTML(messages[i])
                 ctx.scene.leave()
                 ctx.scene.enter('spotMarket')
               } 
@@ -95,7 +99,7 @@ const getOrderBookSpot = async (ctx, user) => {
   }
 }
 
-const infoOutput = (ctx, result) => {
+const infoOutput = (result) => {
   let resultString = "";
   if(result.s)
     resultString += `<b>Криптовалюта:</b> ${result.s}\n`;
@@ -111,7 +115,22 @@ const infoOutput = (ctx, result) => {
       resultString += `\n\t\t\t<b>Ціна:</b> ${item[0]}$\n\t\t\t<b>Розмір:</b> ${item[1]}\n`;
     })
   }
-  return ctx.replyWithHTML(resultString);
+  const chunks = [];
+  let currentChunk = '';
+
+  const lines = resultString.split('\n');
+
+  for (const line of lines) {
+    if (currentChunk.length + line.length + 1 <= 4096) {
+      currentChunk += line + '\n';
+    } else {
+      chunks.push(currentChunk);
+      currentChunk = line + '\n';
+    }
+  }
+  if (currentChunk) 
+    chunks.push(currentChunk);
+  return chunks
 }
 
 module.exports = { getOrderBookSpotScene }

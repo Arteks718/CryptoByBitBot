@@ -46,7 +46,9 @@ const getKlineDirevatives = async (ctx, user) => {
                     { idTelegram: ctx.chat.id },
                     { $set: { status: "direvativesMarket"}}  
                   )
-                  infoOutput(ctx, result.result);
+                  const messages = infoOutput(result.result);
+                  for(let i = 0; i < messages.length; i++) 
+                    await ctx.replyWithHTML(messages[i])
                   ctx.scene.leave();
                   ctx.scene.enter('direvativesMarket')
                 }
@@ -75,7 +77,9 @@ const getKlineDirevatives = async (ctx, user) => {
                     { idTelegram: ctx.chat.id },
                     { $set: { status: "direvativesMarket"}}  
                   )
-                  infoOutput(ctx, result.result);
+                  const messages = infoOutput(result.result);
+                  for(let i = 0; i < messages.length; i++) 
+                    await ctx.replyWithHTML(messages[i])
                   ctx.scene.leave()
                   ctx.scene.enter('direvativesMarket')
                 }
@@ -100,7 +104,7 @@ const getKlineDirevatives = async (ctx, user) => {
   }
 }
 
-const infoOutput = (ctx, result) => {
+const infoOutput = (result) => {
   let resultString = "";
   if(result.symbol)
     resultString += `<b>Криптовалюта:</b> ${result.symbol}\n`;
@@ -112,7 +116,22 @@ const infoOutput = (ctx, result) => {
       resultString += `\n\t\t\t<b>Найнижча ціна:</b> ${item[3]}`
       resultString += `\n\t\t\t<b>Ціна закриття:</b> ${item[4]}\n`
     })
-  return ctx.replyWithHTML(resultString);
+  const chunks = [];
+  let currentChunk = '';
+
+  const lines = resultString.split('\n');
+
+  for (const line of lines) {
+    if (currentChunk.length + line.length + 1 <= 4096) {
+      currentChunk += line + '\n';
+    } else {
+      chunks.push(currentChunk);
+      currentChunk = line + '\n';
+    }
+  }
+  if (currentChunk) 
+    chunks.push(currentChunk);
+  return chunks
 }
 
 module.exports = { getKlineDirevativesScene }

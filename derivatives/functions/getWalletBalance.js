@@ -55,7 +55,11 @@ const getWalletBalanceDirevatives = async(ctx, user) => {
           clientByBit.getWalletBalance({ accountType: "CONTRACT" })
             .then(async (result) => {
               if(result.retCode == 0) {
-                await ctx.reply("✅Операція отримання балансу успішна✅");
+                await users.updateOne(
+                  { idTelegram: ctx.chat.id },
+                  { $set: { status: "direvativesMarket"}}  
+                )
+                await ctx.reply("✅Операція отримання балансу успішна✅", direvativesAPI);
                 const list = result.result.list[0].coin;
                 list.forEach((coin) => specificCoin(ctx, coin));
                 ctx.scene.leave()

@@ -58,7 +58,11 @@ const getWalletBalanceSpot = async(ctx, user) => {
               if(result.retCode == 0) {
                 console.log(result.result.list[0])
                 if(result.result.list[0].coin.length != 0) {
-                  await ctx.reply("✅Операція отримання балансу успішна✅");
+                  await users.updateOne(
+                    { idTelegram: ctx.chat.id },
+                    { $set: { status: "spotMarket"}}  
+                  )
+                  await ctx.reply("✅Операція отримання балансу успішна✅", spotAPI);
                   const list = result.result.list[0].coin;
                   list.forEach((coin) => specificCoin(ctx, coin));
                   ctx.scene.leave()
