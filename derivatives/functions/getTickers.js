@@ -1,7 +1,8 @@
 const { users } = require("../../config");
+const errors = require("../../errors");
 const { RestClientV5 } = require("bybit-api");
 const { direvativesAPI, direvativesWithoutAPI } = require("../../keyboards")
-const chooseOtherButton = require('../chooseOtherButton.js')
+const chooseOtherButton = require('../chooseOtherButton')
 const { Scenes } = require("telegraf");
 const { message } = require("telegraf/filters");
 
@@ -35,7 +36,7 @@ const getTickersDirevatives = async(ctx, user) => {
               if(result.retCode == 0) {
                 const user = await users.findOne({
                   idTelegram: ctx.chat.id,
-                  status: "orderBookSpot",
+                  status: "tickersDirevatives",
                 });
                 (user.chooseButtonAPI == true) ? ctx.reply("✅Операція виведення даних про криптовалюту успішна✅", direvativesAPI) : ctx.reply("✅Операція виведення даних про криптовалюту успішна✅", direvativesWithoutAPI)
                 await users.updateOne(
@@ -46,7 +47,8 @@ const getTickersDirevatives = async(ctx, user) => {
                 ctx.scene.leave()
                 ctx.scene.enter('direvativesMarket')
               } else{
-                throw new Error(result.retCode);
+                // errors(ctx, result)
+                throw new Error(result);
               }
             })
             .catch((err) => {
@@ -55,7 +57,7 @@ const getTickersDirevatives = async(ctx, user) => {
             });
         }
         else
-          ctx.reply("❌Помилка, неправильно введено запит getTickers. Будь ласка, спробуйте ще раз.")
+          ctx.reply("❌Помилка, неправильно введено запит. Будь ласка, спробуйте ще раз.")
       }
     })
   }
@@ -84,7 +86,7 @@ const infoOutput = (ctx, result) => {
   if (result.volume24h)
     resultString += `<b>Об’єм торгівлі за 24 години</b> ${result.volume24h}$\n`;
   if (result.turnover24h)
-    resultString += `<b>Оборот торгівлі за 24 години</b> ${result.turnover24h}$`;
+    resultString += `<b>Оборот торгівлі за 24 години</b> ${Math.round(result.turnover24h)}$`;
   return ctx.replyWithHTML(resultString);
 };
 

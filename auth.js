@@ -1,8 +1,7 @@
-const { Markup, Scenes, session } = require("telegraf");
+const { Markup, session } = require("telegraf");
 const { bot, users } = require("./config.js");
-const inputAPIKeys = require("./inputAPIKeys.js");
 const { mainKeyboard } = require("./keyboards.js")
-
+const getAnnouncement = require('./settings/getAnnouncement.js')
 
 module.exports = async (ctx) => {
   try {
@@ -21,6 +20,7 @@ bot.action("noAPI", async (ctx) => chooseButtonAPI(ctx, false));
 const greeting = async (ctx) => {
   if (await users.findOne({ idTelegram: ctx.chat.id })) {
     ctx.replyWithHTML("Вітаю!✋\nРадий знову Вас бачити!🙂", mainKeyboard);
+    getAnnouncement(ctx);
   } else {
     await ctx.reply("Привіт, вітаю тебе у боті CryptoByBitBot!🙂", Markup.removeKeyboard());
     setTimeout(async () => await ctx.replyWithHTML(`Бот працює з ринками споту та диревативів(USDT безстрокові) використовуючі криптобіржу ByBit📈`),1500)
@@ -56,7 +56,6 @@ const chooseButtonAPI = async (ctx, button) => {
         { $set: { status: "inputAPIKey" , chooseButtonAPI: button}}
       );
       await ctx.scene.enter("authScene")
-      // await inputAPIKeys(ctx, "mainMenu", mainKeyboard);
     } else{
       ctx.reply("Зрозумів, тоді в будь який інший момент у команді /settings ви можете ввести свої API ");
       users.updateOne(
