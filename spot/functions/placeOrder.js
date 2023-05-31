@@ -68,7 +68,7 @@ const placeOrderSpot = async(ctx, user) => {
                 ctx.scene.enter('spotMarket')
               } 
               else 
-                throw new Error(result.retMsg);
+                ctx.reply(`❌Помилка: ${result.retMsg}`)
             })
             .catch((err) => {
               ctx.reply("❌Помилка додавання замовлення");
@@ -76,7 +76,7 @@ const placeOrderSpot = async(ctx, user) => {
             });
         }
         else
-          ctx.reply("❌Помилка, неправильно введені параметри. Будь ласка, спробуйте ще раз.") 
+          ctx.reply("❌Помилка, неправильно введено запит. Будь ласка, спробуйте ще раз.")
       }
     })
   }

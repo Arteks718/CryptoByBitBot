@@ -46,10 +46,9 @@ const getTickersDirevatives = async(ctx, user) => {
                 infoOutput(ctx, result.result.list[0]);
                 ctx.scene.leave()
                 ctx.scene.enter('direvativesMarket')
-              } else{
-                // errors(ctx, result)
-                throw new Error(result);
-              }
+              } 
+              else
+                ctx.reply(`❌Помилка: ${result.retMsg}`)
             })
             .catch((err) => {
               ctx.reply("❌Помилка виведення даних про криптовалюту");

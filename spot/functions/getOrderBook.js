@@ -49,7 +49,7 @@ const getOrderBookSpot = async (ctx, user) => {
                 ctx.scene.enter('spotMarket');
               }
               else 
-                throw new Error(result.retCode);
+                ctx.reply(`❌Помилка: ${result.retMsg}`)
             })
             .catch((err) => {
               ctx.reply("❌Помилка виведення книги замовлень");
@@ -78,7 +78,7 @@ const getOrderBookSpot = async (ctx, user) => {
                 ctx.scene.enter('spotMarket')
               } 
               else 
-                throw new Error(result.retCode);
+                ctx.reply(`❌Помилка: ${result.retMsg}`)
             })
             .catch((err) => {
               ctx.reply("❌Помилка виведення книги замовлень");

@@ -45,7 +45,7 @@ const getWalletBalanceSpot = async(ctx, user) => {
                 ctx.scene.enter('spotMarket')
               } 
               else 
-                throw new Error(result.retCode);
+                ctx.reply(`❌Помилка: ${result.retMsg}`)
             })
             .catch((err) => {
               ctx.reply("❌Помилка виведення даних про поточний баланс");
@@ -72,7 +72,7 @@ const getWalletBalanceSpot = async(ctx, user) => {
                   ctx.reply(`Список криптовалют з балансом пустий 😔`)
               }
               else
-                throw new Error(result.retCode);
+                ctx.reply(`❌Помилка: ${result.retMsg}`)
             })
             .catch((err) => {
               ctx.reply("❌Помилка виведення даних про поточний баланс");
@@ -80,7 +80,7 @@ const getWalletBalanceSpot = async(ctx, user) => {
             });
         }
         else
-          ctx.reply("❌Помилка, неправильно введено запит getWalletBalance. Будь ласка, спробуйте ще раз.")
+          ctx.reply("❌Помилка, неправильно введено запит. Будь ласка, спробуйте ще раз.")
        }
     })
   } 

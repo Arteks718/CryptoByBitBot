@@ -49,7 +49,7 @@ const getOrderBookDirevatives = async (ctx, user) => {
                 ctx.scene.enter('direvativesMarket');
               }
               else 
-                throw new Error(result.retCode);
+                ctx.reply(`❌Помилка: ${result.retMsg}`)
             })
             .catch((err) => {
               ctx.reply("❌Помилка виведення книги замовлень");
@@ -78,7 +78,7 @@ const getOrderBookDirevatives = async (ctx, user) => {
                 ctx.scene.enter('direvativesMarket')
               } 
               else 
-                throw new Error(result.retCode);
+                ctx.reply(`❌Помилка: ${result.retMsg}`)
             })
             .catch((err) => {
               ctx.reply("❌Помилка виведення книги замовлень");
@@ -89,7 +89,7 @@ const getOrderBookDirevatives = async (ctx, user) => {
             ctx.reply("❌Помилка ліміта, значення перевищує максимальне. Будь ласка, спробуйте ще раз та введіть значення менше")
         }
         else 
-          ctx.reply("❌Помилка, неправильно введений запит getOrderBook, спробуйте ще раз");
+          ctx.reply("❌Помилка, неправильно введено запит. Будь ласка, спробуйте ще раз.")
       }
     })
   } else {

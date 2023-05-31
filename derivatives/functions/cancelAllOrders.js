@@ -19,7 +19,7 @@ cancelAllOrdersDirevativesScene.enter(async ctx => {
 
 const cancelAllOrders = async(ctx, user) =>{
   if(user){
-    ctx.reply("Введіть символ за яким будуть видалятись усі замовлення")
+    ctx.reply("Введіть пару символів за яким буде проводитись операція видалення усіх замовлень, наприклад: BTCUSDT, ethusdt, BiTuSdT")
     const clientByBit = new RestClientV5({
       key: user.apiKey,
       secret: user.apiSecret,
@@ -54,8 +54,9 @@ const cancelAllOrders = async(ctx, user) =>{
               }
               ctx.scene.leave()
               ctx.scene.enter('direvativesMarket')
-            } else
-                throw new Error(result.retCode);
+            } 
+            else
+              ctx.reply(`❌Помилка: ${result.retMsg}`)
           })
           .catch((err) => {
             ctx.reply("❌Помилка видалення усіх замовлень");
@@ -63,7 +64,7 @@ const cancelAllOrders = async(ctx, user) =>{
           });
         }
         else
-          ctx.reply("❌Помилка, неправильно введено запит cancelAllOrders")
+          ctx.reply("❌Помилка, неправильно введено запит. Будь ласка, спробуйте ще раз.")
       }
     })
   }

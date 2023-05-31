@@ -65,7 +65,7 @@ const amendOrderDirevatives = async (ctx, user) => {
                 ctx.scene.enter('direvativesMarket')
               }
               else 
-                throw new Error(result.retMsg);
+                ctx.reply(`❌Помилка: ${result.retMsg}`)
             })
             .catch((err) => {
               ctx.reply("❌Помилка оновлення замовлення");
@@ -73,7 +73,7 @@ const amendOrderDirevatives = async (ctx, user) => {
             });
         }
         else 
-          ctx.reply("❌Помилка, неправильно введені параметри. Будь ласка, спробуйте ще раз.") 
+          ctx.reply("❌Помилка, неправильно введено запит. Будь ласка, спробуйте ще раз.") 
       } 
     })
   } else{

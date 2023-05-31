@@ -47,7 +47,7 @@ const cancelOrderDirevatives = async (ctx, user) => {
                 ctx.scene.enter('direvativesMarket')
               }
               else 
-                throw new Error(result.retCode);
+                ctx.reply(`❌Помилка: ${result.retMsg}`)
             })
             .catch((err) => {
               ctx.reply("❌Помилка видалення замовлення");
@@ -55,7 +55,7 @@ const cancelOrderDirevatives = async (ctx, user) => {
             });
         }
         else
-          ctx.reply("❌Помилка, неправильно введено запит cancelOrder")
+          ctx.reply("❌Помилка, неправильно введено запит. Будь ласка, спробуйте ще раз.")
       }
     })
   } 

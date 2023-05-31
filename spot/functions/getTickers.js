@@ -46,7 +46,7 @@ const getTickersSpot = async(ctx, user) => {
                 ctx.scene.leave()
                 ctx.scene.enter('spotMarket')
               } else{
-                throw new Error(result.retCode);
+                ctx.reply(`❌Помилка: ${result.retMsg}`)
               }
             })
             .catch((err) => {
@@ -55,7 +55,7 @@ const getTickersSpot = async(ctx, user) => {
             });
         }
         else
-          ctx.reply("❌Помилка, неправильно введено запит getTickers. Будь ласка, спробуйте ще раз.")
+          ctx.reply("❌Помилка, неправильно введено запит. Будь ласка, спробуйте ще раз.")
       }
     })
   }

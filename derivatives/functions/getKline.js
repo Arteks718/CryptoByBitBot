@@ -53,10 +53,10 @@ const getKlineDirevatives = async (ctx, user) => {
                   ctx.scene.enter('direvativesMarket')
                 }
                 else
-                  throw new Error(result.retCode);
+                  ctx.reply(`❌Помилка: ${result.retMsg}`)
               })
               .catch((err) => {
-                ctx.reply("❌Помилка");
+                ctx.reply("❌Помилка виведення списку клинів");
                 console.log(err)
               });
           } else ctx.reply("❌Помилка. Неправильно введено введений інтервал або ліміт. Будь ласка, спробуйте ще раз.")
@@ -84,16 +84,16 @@ const getKlineDirevatives = async (ctx, user) => {
                   ctx.scene.enter('direvativesMarket')
                 }
                 else
-                  throw new Error(result.retCode);
+                ctx.reply(`❌Помилка: ${result.retMsg}`)
               })
               .catch((err) => {
-                ctx.reply("❌Помилка");
+                ctx.reply("❌Помилка виведення списку клинів");
                 console.log(err)
               });
           } else ctx.reply("❌Помилка. Неправильно введено введений інтервал. Будь ласка, спробуйте ще раз.")
         }
         else
-          ctx.reply("❌Помилка, неправильно введено запит getKline. Будь ласка, спробуйте ще раз.")
+          ctx.reply("❌Помилка, неправильно введено запит. Будь ласка, спробуйте ще раз.")
       }
     })
   }

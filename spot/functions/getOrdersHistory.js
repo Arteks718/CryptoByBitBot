@@ -53,7 +53,7 @@ const getOrdersHistory = async(ctx, user) => {
                    }
                 }              
                 else
-                  throw new Error(result.retCode);
+                  ctx.reply(`❌Помилка: ${result.retMsg}`)
               })
               .catch((err) => {
                 ctx.reply("❌Помилка виведення історії замовлень");
@@ -83,13 +83,15 @@ const getOrdersHistory = async(ctx, user) => {
                 }
               }
               else
-                throw new Error(result.retCode);
+                ctx.reply(`❌Помилка: ${result.retMsg}`)
             })
             .catch((err) => {
               ctx.reply("❌Помилка виведення історії замовлень");
               console.log(err)
           });
         }
+        else
+          ctx.reply("❌Помилка, неправильно введено запит. Будь ласка, спробуйте ще раз.")
       }
     })
   }

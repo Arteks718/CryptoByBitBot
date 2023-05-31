@@ -67,7 +67,7 @@ const placeOrderDirevatives = async(ctx, user) => {
                 ctx.scene.enter('direvativesMarket')
               } 
               else 
-                throw new Error(result.retMsg);
+                ctx.reply(`❌Помилка: ${result.retMsg}`)
             })
             .catch((err) => {
               ctx.reply("❌Помилка додавання замовлення");

@@ -53,10 +53,10 @@ const getKlineSpot = async (ctx, user) => {
                   ctx.scene.enter('spotMarket')
                 }
                 else
-                  throw new Error(result.retCode);
+                  ctx.reply(`❌Помилка: ${result.retMsg}`)
               })
               .catch((err) => {
-                ctx.reply("❌Помилка виведення даних getKline");
+                ctx.reply("❌Помилка виведення списку клинів");
                 console.log(err)
               });
           } 
@@ -86,10 +86,10 @@ const getKlineSpot = async (ctx, user) => {
                   ctx.scene.enter('spotMarket')
                 }
                 else
-                  throw new Error(result.retCode);
+                  ctx.reply(`❌Помилка: ${result.retMsg}`)
               })
               .catch((err) => {
-                ctx.reply("❌Помилка виведення даних getKline");
+                ctx.reply("❌Помилка виведення списку клинів");
                 console.log(err)
               });
           } 
@@ -97,7 +97,7 @@ const getKlineSpot = async (ctx, user) => {
             ctx.reply("❌Помилка. Неправильно введено введений інтервал. Будь ласка, спробуйте ще раз.")
         }
         else
-          ctx.reply("❌Помилка, неправильно введено запит getKline. Будь ласка, спробуйте ще раз.")
+          ctx.reply("❌Помилка, неправильно введено запит. Будь ласка, спробуйте ще раз.")
       }
     })
   }
