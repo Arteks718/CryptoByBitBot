@@ -37,11 +37,11 @@ const getOrdersHistory = async(ctx, user) => {
             clientByBit.getHistoricOrders({category: 'spot', symbol: arrayOfStrings[0].toUpperCase(), limit: Number(arrayOfStrings[1])})
               .then(async result => {
                 if(result.retCode == 0) {
+                  await users.updateOne(
+                    { idTelegram: ctx.chat.id },
+                    { $set: { status: "spotMarket"}}  
+                  )
                   if(result.result.list.length != 0) {
-                    await users.updateOne(
-                      { idTelegram: ctx.chat.id },
-                      { $set: { status: "spotMarket"}}  
-                    )
                     await ctx.reply("✅Операція виведення історії замовлень, успішна✅", spotAPI);
                     result.result.list.forEach(item => infoOutput(ctx,item))
                     ctx.scene.leave();
@@ -67,11 +67,11 @@ const getOrdersHistory = async(ctx, user) => {
           clientByBit.getHistoricOrders({category: 'spot', symbol: ctx.message.text.toUpperCase()})
             .then(async result => {
               if(result.retCode == 0) {
+                await users.updateOne(
+                  { idTelegram: ctx.chat.id },
+                  { $set: { status: "spotMarket"}} 
+                )
                 if(result.result.list.length != 0) {
-                  await users.updateOne(
-                    { idTelegram: ctx.chat.id },
-                    { $set: { status: "spotMarket"}} 
-                  )
                   await ctx.reply("✅Операція виведення історії замовлень, успішна✅", spotAPI);
                   result.result.list.forEach(item => infoOutput(ctx,item))
                   ctx.scene.leave();

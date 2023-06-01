@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
+    "dev": "node index.js",
     "test": "nodemon test.js",
     "start1": "nodemon index1.js"
   },

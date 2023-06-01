@@ -47,7 +47,11 @@ const getOrdersHistory = async(ctx, user) => {
                     ctx.scene.leave();
                     ctx.scene.enter('direvativesMarket')
                    } else {
-                    ctx.reply(`Список історії замовлень за криптовалютою ${ctx.message.text.toUpperCase()} пустий 😔`)
+                    await users.updateOne(
+                      { idTelegram: ctx.chat.id },
+                      { $set: { status: "direvativesMarket"}}  
+                    )
+                    ctx.reply(`Список історії замовлень за криптовалютою ${ctx.message.text.toUpperCase()} пустий 😔`, direvativesAPI)
                     ctx.scene.leave();
                     ctx.scene.enter('direvativesMarket')
                    }
@@ -62,22 +66,22 @@ const getOrdersHistory = async(ctx, user) => {
           }
           else
             clx.reply("❌Помилка, кількість запитів перевищує максимально допустиме. Будь ласка, введіть значення менше та спробуйте ще раз.")          
-        }       
+        }
         else if(/^[A-Za-z]+/.test(ctx.message.text)){
           clientByBit.getHistoricOrders({category: 'linear', symbol: ctx.message.text.toUpperCase()})
             .then(async result => {
               if(result.retCode == 0) {
+                await users.updateOne(
+                  { idTelegram: ctx.chat.id },
+                  { $set: { status: "direvativesMarket"}} 
+                )
                 if(result.result.list.length != 0) {
-                  await users.updateOne(
-                    { idTelegram: ctx.chat.id },
-                    { $set: { status: "direvativesMarket"}} 
-                  )
                   await ctx.reply("✅Операція виведення історії замовлень, успішна✅", direvativesAPI);
                   result.result.list.forEach(item => infoOutput(ctx,item))
                   ctx.scene.leave();
                   ctx.scene.enter('direvativesMarket')
                 } else {
-                  ctx.reply(`Список історії замовлень за криптовалютою ${ctx.message.text.toUpperCase()} пустий 😔`)
+                  ctx.reply(`Список історії замовлень за криптовалютою ${ctx.message.text.toUpperCase()} пустий 😔`, direvativesAPI)
                   ctx.scene.leave();
                   ctx.scene.enter('direvativesMarket')
                 }
