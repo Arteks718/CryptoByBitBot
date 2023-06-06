@@ -14,10 +14,13 @@ module.exports = async (ctx) => {
 };
 
 
-bot.action("yesAPI", async (ctx) => chooseButtonAPI(ctx, true));
-bot.action("noAPI", async (ctx) => chooseButtonAPI(ctx, false));
+bot.action("yesAPI", async (ctx) => await chooseButtonAPI(ctx, true));
+bot.action("noAPI", async (ctx) => await chooseButtonAPI(ctx, false));
 
 const greeting = async (ctx) => {
+  if(await users.findOne({ idTelegram: ctx.chat.id, chooseButtonAPI: { $exists: false} })) {
+    await users.findOneAndDelete({ idTelegram: ctx.chat.id });
+  }
   if (await users.findOne({ idTelegram: ctx.chat.id })) {
     ctx.replyWithHTML("Вітаю!✋\nРадий знову Вас бачити!🙂", mainKeyboard);
     getAnnouncement(ctx);

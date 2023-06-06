@@ -19,7 +19,7 @@ placeOrderDirevativesScene.enter(async ctx => {
 
 const placeOrderDirevatives = async(ctx, user) => {
   if(user) {
-    ctx.replyWithHTML(`Введіть запит за такими параметрами:\n\n<i>symbol:side:orderType:qty:price:takeProfit:stopLoss</i>\n\n<b>symbol</b> (обов'язковий) - це символ криптовалюти за яким буде додаватись нове замовлення (наприклад BTCUSD, ethusdt)\n<b>side</b> (обов'язковий) - це сторона замовлення, вона може бути лише Buy(купівля) або Sell(продаж)\n<b>orderType</b> (обов'язковий) - це тип замовлення, він може бути лише Market(ринковий) або Limit(лімітний). Якщо обираєте Market, тоді наступні поля як takeProfit та stopLoss\n<b>qty</b> (обов'язковий) - кількість замовлення\n<b>price</b> - ціна замовлення\n<b>takeProfit</b> - ціна продажу замовлення\n<b>stopLoss</b> - ціна продажу замовлення\n\nПоля price, takeProfit та stopLoss є не обов'язковими, тому якщо не якийсь з них не бажаєте вводити, будь ласка, заповніть значенням <b>0</b>\n<b>Ось приклад введення запиту</b>\n\n<i>BTCUSDT:Buy:Limit:0.001:28000:28200:27800</i>`)
+    ctx.replyWithHTML(`Введіть запит за такими параметрами:\n\n<i>symbol:side:orderType:qty:price:takeProfit:stopLoss</i>\n\n<b>symbol</b> (обов'язковий) - це символ криптовалюти за яким буде додаватись нове замовлення (наприклад BTCUSD, ethusdt)\n<b>side</b> (обов'язковий) - це сторона замовлення, вона може бути лише Buy(купівля) або Sell(продаж)\n<b>orderType</b> (обов'язковий) - це тип замовлення, він може бути лише Market(ринковий) або Limit(лімітний). Якщо обираєте Market, тоді наступні поля як price, takeProfit та stopLoss треба заповнити значенням <b>0</b>\n<b>qty</b> (обов'язковий) - кількість замовлення валюти. Якщо обираете тип замовлення <b>Market</b>, тоді дане поле дорівнює вартістю замовлення в USDT\n<b>price</b> - ціна замовлення\n<b>takeProfit</b> - ціна продажу замовлення\n<b>stopLoss</b> - ціна продажу замовлення\n\nПоля price, takeProfit та stopLoss є не обов'язковими, тому якщо не якийсь з них не бажаєте вводити, будь ласка, заповніть значенням <b>0</b>\n<b>Ось приклад введення запиту</b>\n\n<i>BTCUSDT:Buy:Limit:0.001:28000:28200:27800</i>`)
     const clientByBit = new RestClientV5({
       key: user.apiKey,
       secret: user.apiSecret,
@@ -46,6 +46,7 @@ const placeOrderDirevatives = async(ctx, user) => {
             symbol: symbol,
             side: side,
             orderType: orderType,
+            positionIdx: 0,
             qty: qty,
           }
           const price = arrayOfStrings[4];
